@@ -4,9 +4,22 @@ class Projectile {
         this.vel = p5.Vector.fromAngle(dir);
         this.vel.setMag(0.2);
         this.orientation = dir;
+        this.w = 7;
+        this.h = 20;
+        console.log(dir % Math.PI*2);
+    }
+
+    bounceOff(v) {
+        if(v) {
+            this.orientation = this.orientation + (Math.PI - 2* this.orientation);
+        } else {
+            this.orientation = this.orientation + (Math.PI - 2* this.orientation);
+        }
     }
 
     update(dt) {
+        this.vel = p5.Vector.fromAngle(this.orientation);
+        this.vel.setMag(0.2);
         this.pos.add(this.vel.mult(dt));
         this.vel.setMag(0.2);  
     }

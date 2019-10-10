@@ -4,10 +4,13 @@ class Tank {
         this.vel = createVector();
         this.orientation = dir;
         this.rotation = 0;
+        this.w = 60;
+        this.h = 50;
+
         this.turret = new TankTurret(this.pos.x, this.pos.y, this.orientation);
         this.projectiles = [];
 
-        this.firerate = 1000;
+        this.firerate = 250;
         this.timer = 0;
     }
 

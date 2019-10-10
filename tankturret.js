@@ -25,7 +25,7 @@ class TankTurret {
             rotate(this.orientation);
             ellipse(0, 0, 30,30);
             fill(100)
-            rect(-5,-35, 10, 40);
+            rect(-5,-5, 40, 10);
         pop();
     }
 }

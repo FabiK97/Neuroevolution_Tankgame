@@ -4,11 +4,17 @@ class Tank {
         this.vel = createVector();
         this.orientation = dir;
         this.rotation = 0;
-
         this.turret = new TankTurret(this.pos.x, this.pos.y, this.orientation);
+        this.projectiles = [];
+
+        this.firerate = 1000;
+        this.timer = 0;
     }
 
     handleInputs() {
+        let SPACE_KEY = 32;
+        let A_KEY = 68;
+        let D_KEY = 65;
 
         if(keyIsDown(UP_ARROW)) {
 
@@ -30,17 +36,33 @@ class Tank {
         }
 
         //turn Turret
-        if(keyIsDown(68)) {
+        if(keyIsDown(A_KEY)) {
             this.turret.rotate(0.002);
         }
         
-        if(keyIsDown(65)) {
+        if(keyIsDown(D_KEY)) {
             this.turret.rotate(-0.002);                        
+        }
+
+        //shoot
+        if(keyIsDown(SPACE_KEY)) {
+            if(this.timer > this.firerate) {
+                this.shoot();
+                this.timer = 0;
+            }
         }
     }
 
+    shoot() {
+        let pos = this.pos.copy();
+        let diff = p5.Vector.fromAngle(this.turret.orientation);
+        diff.setMag(40);
+        pos = pos.add(diff);
+        this.projectiles.push(new Projectile(pos.x,pos.y,this.turret.orientation));
+    }
+
     update(dt) {
-        this.handleInputs();   
+        this.handleInputs(dt);   
 
         this.pos.add(this.vel.mult(dt));
         this.orientation += this.rotation * dt;
@@ -49,6 +71,10 @@ class Tank {
         this.vel.mult(0);
         
         this.turret.update(this.pos.x, this.pos.y, dt);
+        this.projectiles.forEach(p => {
+            p.update(dt);
+        })
+        this.timer += dt;
     }
 
     show() {
@@ -62,5 +88,8 @@ class Tank {
         pop();
 
         this.turret.show();
+        this.projectiles.forEach(p => {
+            p.show();
+        })
     }
 }

@@ -7,22 +7,60 @@ class Obstacle {
     }
 
     checkCollision(obj) {
-        if(obj instanceof Tank) {
-            if (obj.pos.x - obj.w/2 < this.x + this.w &&
-                obj.pos.x + obj.w/2 > this.x &&
-                obj.pos.y - obj.h/2 < this.y + this.h &&
-                obj.pos.y + obj.h/2 > this.y) {
-                 console.log("collision!");
+             if(obj.pos.x > this.x && obj.pos.x < this.x + this.w) {
+                 if(obj.pos.y - obj.cr < this.y + this.h && obj.pos.y + obj.cr > this.y + this.h) {
+                    //horrizontal collision
+
+                    if(obj instanceof Tank) {
+                            obj.pos.y = this.y + this.h + obj.cr;
+                    } else {
+                        if(obj.bounced) {
+                            return true;
+                        } else {
+                            obj.bounceOff(false);
+                        }
+                    }
+
+                 } else  if(obj.pos.y - obj.cr < this.y && obj.pos.y + obj.cr > this.y) {
+                    //horrizontal collision
+
+                    if(obj instanceof Tank) {
+                        obj.pos.y = this.y - obj.cr;
+                    } else {
+                    if(obj.bounced) {
+                        return true;
+                    } else {
+                        obj.bounceOff(false);
+                    }
+                    }
+                 }
              }
 
-        } else if(obj instanceof Projectile) {
-            if (obj.pos.x - obj.w/2 < this.x + this.w &&
-                obj.pos.x + obj.w/2 > this.x &&
-                obj.pos.y - obj.h/2 < this.y + this.h &&
-                obj.pos.y + obj.h/2 > this.y) {
-                 obj.bounceOff();
+             if(obj.pos.y > this.y && obj.pos.y < this.y + this.h) {
+                 if(obj.pos.x - obj.cr < this.x + this.w && obj.pos.x + obj.cr > this.y + this.w)  {
+                    //vertical collision
+                    if(obj instanceof Tank) {
+                        obj.pos.x = this.x + this.w + obj.cr;
+                    } else {
+                        if(obj.bounced) {
+                            return true;
+                        } else {
+                            obj.bounceOff(true);
+                        }
+                    }
+                 } else if(obj.pos.x + obj.cr > this.x && obj.pos.x - obj.cr < this.x) {
+                    //vertical collision
+                    if(obj instanceof Tank) {
+                        obj.pos.x = this.x - obj.cr;
+                    } else {
+                        if(obj.bounced) {
+                            return true;
+                        } else {
+                            obj.bounceOff(true);
+                        }
+                    }
+                 } 
              }
-        }
     }
 
     show() {

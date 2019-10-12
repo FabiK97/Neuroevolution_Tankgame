@@ -6,6 +6,7 @@ class Tank {
         this.rotation = 0;
         this.w = 60;
         this.h = 50;
+        this.cr = 25;
 
         this.turret = new TankTurret(this.pos.x, this.pos.y, this.orientation);
         this.projectiles = [];

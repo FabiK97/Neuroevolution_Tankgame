@@ -21,10 +21,16 @@ class Game {
         this.obstacles.forEach(obstacle => {
             obstacle.checkCollision(this.tank);
         });
-        for (var p of this.tank.projectiles) {
-            this.obstacles.forEach(obstacle => {
-                obstacle.checkCollision(p);
-            });
+
+        for (let i = 0; i < this.tank.projectiles.length; i++) {
+            for(var o of this.obstacles) {
+                    if(this.tank.projectiles[i]) {
+                        if(o.checkCollision(this.tank.projectiles[i])) {
+                        this.tank.projectiles.splice(i, 1);
+                    }
+                }   
+            }
+
         }
     }
 

@@ -13,43 +13,57 @@ class Tank {
 
         this.firerate = 250;
         this.timer = 0;
+
+        this.isWinner = false;
+        this.isPlayerTank = true;
+        this.controls = 0;
+    }
+
+    static get ARROW_KEYS() {
+        return 0;
+    }
+    static get WASD() {
+        return 1;
+    }
+
+    setControls(controls) {
+        this.controls = controls;
     }
 
     handleInputs() {
-        let SPACE_KEY = 32;
-        let A_KEY = 68;
-        let D_KEY = 65;
 
-        if(keyIsDown(UP_ARROW)) {
+
+        let SPACE_KEY = 32;
+        if((this.controls == 0 && keyIsDown(UP_ARROW)) || (this.controls == 1 && keyIsDown(87))) {
 
             this.vel = p5.Vector.fromAngle(this.orientation);
             this.vel.setMag(0.2); 
 
-        } else if(keyIsDown(DOWN_ARROW)) {
+        } else if((this.controls == 0 && keyIsDown(DOWN_ARROW)) || (this.controls == 1 && keyIsDown(83))) {
 
             this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
             this.vel.setMag(0.2);  
         }
         
-        if(keyIsDown(RIGHT_ARROW)) {
+        if((this.controls == 0 && keyIsDown(RIGHT_ARROW)) || (this.controls == 1 && keyIsDown(68))) {
             this.rotation += 0.002;
         }
         
-        if(keyIsDown(LEFT_ARROW)) {
+        if((this.controls == 0 && keyIsDown(LEFT_ARROW)) || (this.controls == 1 && keyIsDown(65))) {
             this.rotation -= 0.002;                
         }
 
         //turn Turret
-        if(keyIsDown(A_KEY)) {
+        if((this.controls == 0 && keyIsDown(189)) || (this.controls == 1 && keyIsDown(66))) {
             this.turret.rotate(0.002);
         }
         
-        if(keyIsDown(D_KEY)) {
+        if((this.controls == 0 && keyIsDown(188)) || (this.controls == 1 && keyIsDown(67))) {
             this.turret.rotate(-0.002);                        
         }
 
         //shoot
-        if(keyIsDown(SPACE_KEY)) {
+        if((this.controls == 0 && keyIsDown(190)) || (this.controls == 1 && keyIsDown(86))) {
             if(this.timer > this.firerate) {
                 this.shoot();
                 this.timer = 0;
@@ -65,8 +79,29 @@ class Tank {
         this.projectiles.push(new Projectile(pos.x,pos.y,this.turret.orientation));
     }
 
+    checkHit(p) {
+        if(p) {
+            let d = p.pos.dist(this.pos);
+            if(d < this.cr + p.cr) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    checkTankCollision(tank) {
+        if(tank !== this) {
+           let d = tank.pos.dist(this.pos);
+            if(d < this.cr*2) {
+                return true;
+            } 
+        }
+        return false;
+    }
+
     update(dt) {
-        this.handleInputs(dt);   
+        if(this.isPlayerTank)
+            this.handleInputs(dt);   
 
         this.pos.add(this.vel.mult(dt));
         this.orientation += this.rotation * dt;
@@ -84,7 +119,11 @@ class Tank {
     show() {
         push();
             noStroke();
-            fill(255);
+            if(!this.isPlayerTank) {
+                fill(152, 76, 52);
+            } else {
+                fill(39, 72, 97);
+            }
             translate(this.pos.x, this.pos.y);
             rotate(this.orientation);
             rectMode(CENTER);

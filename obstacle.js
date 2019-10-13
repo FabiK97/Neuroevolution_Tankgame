@@ -37,7 +37,7 @@ class Obstacle {
              }
 
              if(obj.pos.y > this.y && obj.pos.y < this.y + this.h) {
-                 if(obj.pos.x - obj.cr < this.x + this.w && obj.pos.x + obj.cr > this.y + this.w)  {
+                 if(obj.pos.x - obj.cr < this.x + this.w && obj.pos.x + obj.cr > this.x + this.w)  {
                     //vertical collision
                     if(obj instanceof Tank) {
                         obj.pos.x = this.x + this.w + obj.cr;
@@ -65,7 +65,7 @@ class Obstacle {
 
     show() {
         noStroke();
-        fill(0);
+        fill(75, 61, 48);
         rect(this.x, this.y, this.w, this.h);
     }
 }

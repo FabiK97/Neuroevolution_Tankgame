@@ -1,15 +1,24 @@
 var game;
 var fr = 60;
+var gamemode = {
+  MULTIPLAYER: 0,
+  PLAYER_VS_AI: 1,
+  AI_VS_AI:2,
+}
 
 function setup() { 
 //Init things here
   createCanvas(800,600);
   frameRate(fr);
-  game = new Game();
+  game = new Game(gamemode.MULTIPLAYER);
 } 
   
 function draw() { 
   //Draw Loop
-  background(50);
+  background(219, 187, 126);
+
+  if(game.isOver) {
+    game = new Game(gamemode.MULTIPLAYER);  
+  }
   game.run(deltaTime);
 }

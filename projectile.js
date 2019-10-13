@@ -20,6 +20,18 @@ class Projectile {
         this.bounced = true;
     }
 
+    checkCollision(p) {
+        if(p) {
+            let d = p.pos.dist(this.pos);
+            if(p !== this && d < this.cr*2) {
+                console.log("hit");
+                return true;
+            }  
+        }
+        
+        return false;
+    }
+
     update(dt) {
         this.vel = p5.Vector.fromAngle(this.orientation);
         this.vel.setMag(0.2);

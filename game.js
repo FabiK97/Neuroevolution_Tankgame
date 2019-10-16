@@ -47,6 +47,7 @@ class Game {
             this.obstacles.forEach(obstacle => {
                 obstacle.checkCollision(tank);
             });
+
             for(let t of this.tanks) {
                 if(tank.checkTankCollision(t)) {
                     let force = p5.Vector.sub(t.pos, tank.pos);
@@ -75,6 +76,7 @@ class Game {
                     }
                     
                 }
+
                 for(var o of this.obstacles) {
                         if(tank.projectiles[i]) {
                             if(o.checkCollision(tank.projectiles[i])) {
@@ -82,8 +84,6 @@ class Game {
                         }
                     }   
                 }
-                
-
             }
         }
         

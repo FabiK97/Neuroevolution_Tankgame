@@ -7,11 +7,13 @@ var gamemode = {
 }
 
 function setup() { 
-//Init things here
+  //Init things here
   createCanvas(800,600);
   frameRate(fr);
   game = new Game(gamemode.MULTIPLAYER);
-} 
+
+  let nn = new NeuralNetwork(2,2,2,2);
+}
   
 function draw() { 
   //Draw Loop

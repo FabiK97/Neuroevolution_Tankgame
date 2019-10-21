@@ -21,11 +21,12 @@ class NeuralNetwork {
             return math.random(-1, 1);
         }
 
-        this.weights_i_h1.map(randomize);
-        this.weights_h1_h2.map(randomize);
-        this.weights_h2_o.map(randomize);
-
-        console.table(this.weights_i_h1.data);
+        this.weights_i_h1 = this.weights_i_h1.map(randomize);
+        this.weights_h1_h2 = this.weights_h1_h2.map(randomize);
+        this.weights_h2_o = this.weights_h2_o.map(randomize);
+        console.table(this.weights_i_h1._data);
+        console.table(this.weights_h1_h2._data);
+        console.table(this.weights_h2_o._data);
 
     }
 
@@ -33,7 +34,27 @@ class NeuralNetwork {
     /**
      * feed forward the inputs and return an output
      */
-    predict() {
+    predict(inputs) {
 
+        //transform input array into matrix
+        inputs = math.matrix(inputs);
+
+        //calculate signals into first hidden layer
+        let h1_inputs = math.multiply(inputs, this.weights_i_h1);
+        let h1_outputs = h1_inputs.map(sigmoid);
+
+        //calculate signals into second hidden layer
+        let h2_inputs = math.multiply(h1_outputs, this.weights_h1_h2);
+        let h2_outputs = h2_inputs.map(sigmoid);
+
+        //calculate signals into final output layer
+        let final_inputs = math.multiply(h2_outputs, this.weights_h2_o);
+        let final_outputs = final_inputs.map(sigmoid);
+        
+        return final_outputs._data;
     }
+}
+
+function sigmoid(x) {
+    return 1 / (1 + math.pow(Math.E, -x));
 }

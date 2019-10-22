@@ -10,9 +10,7 @@ function setup() {
   //Init things here
   createCanvas(800,600);
   frameRate(fr);
-  game = new Game(gamemode.MULTIPLAYER);
-
-  let nn = new NeuralNetwork(2,2,2,2);
+  game = new Game(gamemode.PLAYER_VS_AI);
 }
   
 function draw() { 

@@ -17,6 +17,7 @@ class Game {
             case 2: 
                 this.tanks.push(new Tank(width/2 + 100, height/2, -Math.PI/2));
                 this.tanks.push(new Tank(width/2 - 100, height/2, -Math.PI/2));
+                this.tanks[0].isPlayerTank = false;
                 this.tanks[1].isPlayerTank = false;
                 break;
         }

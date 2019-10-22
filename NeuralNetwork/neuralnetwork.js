@@ -73,6 +73,24 @@ class NeuralNetwork {
         copy.weights_h2_o = this.weights_h2_o.clone();
         return copy;
     }
+
+    mutate(rate) {
+        function mutate(val) {
+            if(Math.random() < rate) {
+                return math.random(-1, 1);
+            } else {
+                return val;
+            }
+        }
+
+        this.weights_i_h1 = this.weights_i_h1.map(mutate);
+        this.weights_h1_h2 = this.weights_h1_h2.map(mutate);
+        this.weights_h2_o = this.weights_h2_o.map(mutate);
+        this.bias_h1 = this.bias_h1.map(mutate);
+        this.bias_h2 = this.bias_h2.map(mutate);
+        this.bias_o = this.bias_o.map(mutate);
+        
+    }
 }
 
 

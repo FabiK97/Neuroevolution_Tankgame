@@ -8,7 +8,6 @@ class Projectile {
         this.h = 20;
         this.cr = 5;
         this.bounced = false;
-        console.log(dir % Math.PI*2);
     }
 
     bounceOff(v) {
@@ -24,7 +23,6 @@ class Projectile {
         if(p) {
             let d = p.pos.dist(this.pos);
             if(p !== this && d < this.cr*2) {
-                console.log("hit");
                 return true;
             }  
         }

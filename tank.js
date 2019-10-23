@@ -1,5 +1,5 @@
 class Tank {
-    constructor(x,y,dir) {
+    constructor(x,y,dir, brain) {
         this.pos = createVector(x, y);
         this.vel = createVector();
         this.orientation = dir;
@@ -15,10 +15,14 @@ class Tank {
         this.timer = 0;
 
         this.isWinner = false;
+        this.died = false;
         this.isPlayerTank = true;
         this.controls = 0;
-
-        this.brain = new NeuralNetwork(6, 12, 10, 7);
+        if(brain) {
+            this.brain = brain.copy();
+        } else {
+            this.brain = new NeuralNetwork(6, 12, 10, 7);
+        }
     }
 
     static get ARROW_KEYS() {
@@ -26,6 +30,10 @@ class Tank {
     }
     static get WASD() {
         return 1;
+    }
+
+    mutate() {
+        this.brain.mutate(0.1);
     }
 
     setControls(controls) {

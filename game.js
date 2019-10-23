@@ -1,5 +1,5 @@
 class Game {
-    constructor(gamemode = 0) {
+    constructor(gamemode = 0, tank) {
         this.gamemode = gamemode;
   
         this.tanks = [];
@@ -10,7 +10,11 @@ class Game {
                 this.tanks[0].setControls(Tank.WASD);     
                 break;
             case 1: 
-                this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
+                if(tank){
+                    this.tanks.push(tank);
+                } else {
+                    this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
+                }
                 this.tanks.push(new Tank(width/2 - 200, height/2, -Math.PI/2));
                 this.tanks[0].isPlayerTank = false;
                 break;
@@ -70,8 +74,11 @@ class Game {
 
                     if(t.checkHit(tank.projectiles[i])) {
                         tank.projectiles.splice(i, 1);
+                        t.died = true;
                         if(t !== tank) {
                             tank.isWinner = true;
+                            this.isOver = true;
+                        } else {
                             this.isOver = true;
                         }
                     }
@@ -92,7 +99,8 @@ class Game {
 
     render() {
         for(let tank of this.tanks) {
-            tank.show();
+            if(!this.isOver)
+                tank.show();
         }   
         this.obstacles.forEach(obstacle => {
             obstacle.show();

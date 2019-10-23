@@ -47,8 +47,6 @@ class NeuralNetwork {
 
         //calculate signals into first hidden layer
         let h1_inputs = math.multiply(inputs, this.weights_i_h1);
-            console.log(h1_inputs.size());
-            console.log(this.bias_h1.size());
             h1_inputs = math.add(h1_inputs, this.bias_h1);
         let h1_outputs = h1_inputs.map(sigmoid);
 

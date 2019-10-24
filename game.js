@@ -35,9 +35,10 @@ class Game {
         this.obstacles.push(new Obstacle(width - 10, 0, width, height));
         this.obstacles.push(new Obstacle(0, height-10, width, height));
         this.obstacles.push(new Obstacle(0, 10, 10, height));
-        this.obstacles.push(new Obstacle(width/2 - 25, 100, 50, height - 200));
+        //this.obstacles.push(new Obstacle(width/2 - 25, 100, 50, height - 200));
 
         this.isOver = false;
+        this.timer = 0;
 
     }
 
@@ -59,7 +60,6 @@ class Game {
                     force.mult(-0.02);
                     tank.pos.add(force);
                     t.pos.add(force.mult(-1));
-                    console.log(tank.pos.x);
                 }
             }
 
@@ -77,6 +77,7 @@ class Game {
                         t.died = true;
                         if(t !== tank) {
                             tank.isWinner = true;
+                            tank.time = this.timer;
                             this.isOver = true;
                         } else {
                             this.isOver = true;
@@ -94,7 +95,7 @@ class Game {
                 }
             }
         }
-        
+        this.timer++;
     }
 
     render() {

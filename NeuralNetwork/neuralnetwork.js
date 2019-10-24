@@ -64,6 +64,9 @@ class NeuralNetwork {
         return final_outputs._data;
     }
     
+    /**
+     * Create a copy of the Neural Network and return it.
+     */
     copy() {
         let copy = new NeuralNetwork(this.in, this.hn_1, this.hn_2, this.on);
         copy.weights_i_h1 = this.weights_i_h1.clone();
@@ -72,10 +75,13 @@ class NeuralNetwork {
         return copy;
     }
 
+    /**
+     * Mutate the weights and biases of the neural network with a propability rate.
+     */
     mutate(rate) {
         function mutate(val) {
             if(Math.random() < rate) {
-                return math.random(-1, 1);
+                return val + randomGaussian(0, 0.1); //take the current value and add a random amount to it.
             } else {
                 return val;
             }

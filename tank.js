@@ -11,7 +11,7 @@ class Tank {
         this.turret = new TankTurret(this.pos.x, this.pos.y, this.orientation);
         this.projectiles = [];
 
-        this.firerate = 250;
+        this.firerate = 1000;
         this.timer = 0;
 
         this.isWinner = false;
@@ -21,8 +21,10 @@ class Tank {
         if(brain) {
             this.brain = brain.copy();
         } else {
-            this.brain = new NeuralNetwork(6, 12, 10, 7);
+            this.brain = new NeuralNetwork(6, 50, 40, 7);
         }
+        this.score = 0;
+        this.time = 0;
     }
 
     static get ARROW_KEYS() {
@@ -33,7 +35,7 @@ class Tank {
     }
 
     mutate() {
-        this.brain.mutate(0.1);
+        this.brain.mutate(0.01);
     }
 
     setControls(controls) {
@@ -151,8 +153,10 @@ class Tank {
         let inputs = [];
         inputs.push(map(this.pos.x, 0, width, 0, 1));
         inputs.push(map(this.pos.y, 0, height, 0, 1));
-        inputs.push(map(this.orientation, 0, 2*Math.PI, 0, 1));
-        inputs.push(map(this.turret.orientation, 0, 2*Math.PI, 0, 1));
+        let dir = this.orientation % (2*Math.PI);
+        inputs.push(map(dir, 0, 2*Math.PI, 0, 1));
+        let turdir = this.turret.orientation % (2*Math.PI);
+        inputs.push(map(turdir, 0, 2*Math.PI, 0, 1));
         
         if(this.projectiles.length > 0) {
             inputs.push(map(this.turret.pos.x, 0, width, 0, 1));
@@ -182,6 +186,7 @@ class Tank {
             p.update(dt);
         })
         this.timer += dt;
+        if(!this.died) this.score++;
     }
 
     show() {

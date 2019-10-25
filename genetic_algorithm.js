@@ -19,14 +19,19 @@ function calculateFitness() {
 
         //if he is a winner tank, scale his score based on the time it took him to kill the other tank
         if(savedTanks[i].isWinner) {
-            savedTanks[i].score *= map(savedTanks[i].time, 1, 100, 50, 10);
+            let scoreMult = map(savedTanks[i].time, 1, 100, 50, 20);
+            savedTanks[i].score *= scoreMult;
+        } else {
+            if(savedTanks[i].died) {
+                //if he died, decrease his score
+                savedTanks[i].score /= 15;
+                deathcounter++;
+            } else {
+                savedTanks[i].score /= 5;
+            }
         }
 
-        //if he died, decrease his score
-        if(savedTanks[i].died) {
-            savedTanks[i].score /= 10;
-            deathcounter++;
-        }
+        
 
         sum += savedTanks[i].score;
     }

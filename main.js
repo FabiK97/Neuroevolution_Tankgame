@@ -4,11 +4,23 @@ var fr = 60;
 var MAX_GAME_LENGTH = 5;
 var timer = 0;
 var savedTanks = [];
+var render = true;
+var reviewGame;
+var showReviewGame = false;
+
 var gameSpeedSlider;
+var renderCheckbox;
+var showReviewGameCheckbox;
 var generationCount;
-var generationLabel;
 var avgScore;
+
+var showReviewLabel;
+var renderLabel;
+var sliderLabel;
+var generationLabel;
 var avgLabel;
+
+var canvas;
 
 var gamemode = {
   MULTIPLAYER: 0,
@@ -19,13 +31,14 @@ var gamemode = {
 function setup() { 
   //Init things here
   createCanvas(800,600);
-  gameSpeedSlider = createSlider(1,100,1);
-  generationLabel = createElement('h1', "Generation: 1");
-  avgLabel = createElement('h1', "Average Score: ");
+  frameRate(fr);
+
+  
   generationCount = 1;
   avgScore = 0;
-  frameRate(fr);
   
+  initLegend();
+
   for(let i = 0; i < POP_SIZE; i++) {
     population[i] = new Game(gamemode.PLAYER_VS_AI);
   }
@@ -51,18 +64,96 @@ function draw() {
       }
     }
 
+    //if game is over, call nextgeneration
     if(population.length == 0) {
       nextGen();
       generationCount++;
-      generationLabel.html(`Generation: ${generationCount}`)
-      avgLabel.html(`Average Score: ${avgScore}`)
+      updateLegend();
       timer = 0;
     }
   }
 
-  background(219, 187, 126);
-  for(let i = 0; i < population.length; i++) {
-    population[i].render();
-  } 
-  //population[0].render();
+  if(showReviewGame) {
+    updateBestTank();
+  }
+
+  if(render) {
+    canvas.style.display = "block";
+    if(!showReviewGame) {
+      background(219, 187, 126);
+      for(let i = 0; i < population.length; i++) {
+        population[i].render();
+      } 
+    }
+    
+  } else {
+      //canvas.style.display = "none";
+    updateBestTank();
+  }
+}
+
+function updateBestTank() {
+    if((!reviewGame || reviewGame.isOver) && bestTank) {
+      let tank = new Tank(width/2 + 200, height/2, -Math.PI/2, bestTank.brain.copy());
+      reviewGame = new Game(gamemode.PLAYER_VS_AI, tank);
+    }
+    
+    if(reviewGame) {
+      reviewGame.update(deltaTime);
+      background(219, 187, 126);
+      reviewGame.render();
+    }
+}
+
+function initLegend() {
+  let configBox = createDiv();
+  configBox.style("margin: 20px; padding: 10px;   border: 2px solid black; max-width: 500px");
+
+  renderCheckbox = createCheckbox("", true);
+  renderCheckbox.changed(toggleRendering);
+  renderCheckbox.style("display: inline-block;")
+  renderLabel = createElement('div', "Render: ");
+  renderLabel.child(renderCheckbox);
+
+  showReviewGameCheckbox = createCheckbox("", false);
+  showReviewGameCheckbox.changed(toggleRenderMode);
+  showReviewGameCheckbox.style("display: inline-block;")
+  showReviewLabel = createElement('div', "Review Best: ");
+  showReviewLabel.child(showReviewGameCheckbox);
+
+  sliderLabel = createElement('div', "Gamespeed:");
+  gameSpeedSlider = createSlider(1,100,1);
+  gameSpeedSlider.style("margin-left: 10px;");
+  sliderLabel.child(gameSpeedSlider);
+
+
+  generationLabel = createElement('div', `Generation: <strong>${generationCount}</strong>`);
+  avgLabel = createElement('div', `Average Score: <strong>${avgScore}</strong>`);
+  renderLabel.style("font-size: 1.5em; margin: 10px");  
+  showReviewLabel.style("font-size: 1.5em; margin: 10px");  
+  sliderLabel.style("font-size: 1.5em; margin: 10px");
+  generationLabel.style("font-size: 1.5em; margin: 10px");
+  avgLabel.style("font-size: 1.5em; margin: 10px");
+
+  configBox.child(renderLabel);
+  configBox.child(showReviewLabel);
+  configBox.child(sliderLabel);
+  configBox.child(generationLabel);
+  configBox.child(avgLabel);
+
+  canvas = document.getElementsByClassName("p5Canvas")[0];
+
+}
+
+function updateLegend() {
+  generationLabel.html(`Generation: <strong>${generationCount}</strong>`)
+  avgLabel.html(`Average Score: <strong>${avgScore}</strong>`)
+}
+
+function toggleRendering() {
+    render = this.checked();
+}
+
+function toggleRenderMode() {
+  showReviewGame = this.checked();
 }

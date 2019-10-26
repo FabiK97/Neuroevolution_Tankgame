@@ -1,3 +1,5 @@
+var bestTank;
+
 function nextGen() {
 
     calculateFitness();
@@ -11,6 +13,7 @@ function nextGen() {
 }
 
 function calculateFitness() {
+    let highscore = 0;
     let sum = 0;
     let deathcounter = 0;
 
@@ -31,7 +34,10 @@ function calculateFitness() {
             }
         }
 
-        
+        if(savedTanks[i].score > highscore) {
+            highscore = savedTanks[i].score;
+            bestTank = savedTanks[i];
+        }
 
         sum += savedTanks[i].score;
     }
@@ -64,7 +70,7 @@ function selectOne() {
     index--;
     
     let tank = savedTanks[index];
-    let child = new Tank(width/2 + 200, height/2, -Math.PI/2, tank.brain); //create a new Tank and pass him the neural network of the picked tank
+    let child = new Tank(width/2 + 200, height/2, -Math.PI/2, tank.brain.copy()); //create a new Tank and pass him the neural network of the picked tank
     child.mutate();
     return child;
 }

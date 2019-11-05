@@ -11,18 +11,24 @@ class Tank {
         this.turret = new TankTurret(this.pos.x, this.pos.y, this.orientation);
         this.projectiles = [];
         this.enemy = null;
+        this.angletoenemy;
 
         this.firerate = 1000;
         this.timer = 0;
 
         this.isWinner = false;
+        this.hitCount = 1;
+        this.shootCount = 4;
+
         this.died = false;
         this.isPlayerTank = true;
+        this.isBot = false;
+        this.botdir = true;
         this.controls = 0;
         if(brain) {
             this.brain = brain.copy();
         } else {
-            this.brain = new NeuralNetwork(6, 20, 18, 5);
+            this.brain = new NeuralNetwork(6, 8, 6, 5);
         }
         this.inputs = [];
         this.score = 0;
@@ -37,7 +43,7 @@ class Tank {
     }
 
     mutate() {
-        this.brain.mutate(0.05);
+        this.brain.mutate(0.04);
     }
 
     setControls(controls) {
@@ -59,11 +65,11 @@ class Tank {
         }
         
         if((this.controls == 0 && keyIsDown(RIGHT_ARROW)) || (this.controls == 1 && keyIsDown(68))) {
-            this.rotation += 0.002;
+            this.rotation += 0.004;
         }
         
         if((this.controls == 0 && keyIsDown(LEFT_ARROW)) || (this.controls == 1 && keyIsDown(65))) {
-            this.rotation -= 0.002;                
+            this.rotation -= 0.004;                
         }
 
         //turn Turret
@@ -98,13 +104,13 @@ class Tank {
         }
         
         if(outputs[2] > 0.5) {
-            this.rotation = 0.002;
-            this.turret.rotate(0.002);
+            this.rotation = 0.004;
+            this.turret.rotate(0.004);
         }
         
         if(outputs[3] > 0.5) {
-            this.rotation = -0.002;   
-            this.turret.rotate(-0.002);                        
+            this.rotation = -0.004;   
+            this.turret.rotate(-0.004);                        
         }
 
         //turn Turret
@@ -120,9 +126,29 @@ class Tank {
         if(outputs[4] > 0.5) {
             if(this.timer > this.firerate) {
                 this.shoot();
+                this.shootCount++;
                 this.timer = 0;
             }
         }
+    }
+
+    botControl(dt) {
+        
+        if(this.pos.y < 100) {
+            this.botdir = false;
+        }
+
+        if(this.pos.y > height - 100) {
+            this.botdir = true;
+        }
+
+        if(this.botdir) {
+            this.vel = p5.Vector.fromAngle(this.orientation);
+        } else {
+            this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+        }
+        this.vel.setMag(0.2);  
+
     }
 
     shoot() {
@@ -160,13 +186,12 @@ class Tank {
         this.inputs.push(map(this.pos.y, 0, height, 0, 1));
 
         //My Direction
-        let dir = this.orientation % (2*Math.PI);
-        this.inputs.push(map(dir, 0, 2*Math.PI, -1, 1));
+        this.inputs.push(map(this.orientation, 0, 2*Math.PI, 0, 1));
 
         //My Turretdirection
-        let turdir = this.turret.orientation % (2*Math.PI);
+       /*  let turdir = this.turret.orientation % (2*Math.PI);
         this.inputs.push(map(turdir, 0, 2*Math.PI, -1, 1));
-        
+         */
         //Projectile Position
         /* if(this.projectiles.length > 0) {
             this.inputs.push(map(this.turret.pos.x, 0, width, 0, 1));
@@ -180,20 +205,33 @@ class Tank {
         this.inputs.push(map(this.enemy.pos.x, 0, width, 0, 1));
         this.inputs.push(map(this.enemy.pos.y, 0, height, 0, 1));
 
+        //angle to enemy
+        let dist = p5.Vector.sub(this.enemy.pos, this.pos);
+        let distangle = Math.atan2(dist.y, dist.x);
+        this.angletoenemy = this.orientation - distangle;
+        this.inputs.push(map(this.angletoenemy, 0, 2*Math.PI, 0, 1));
+
+
     }
+
     update(dt) {
                 
         if(this.isPlayerTank) {
             this.handleInputs(dt);
         } else {
-            this.updateInputs();
-            let outputs = this.brain.predict(this.inputs);
-            this.aiControl(dt, outputs);
+            if(this.isBot) {
+                this.botControl(dt);
+            } else {
+                this.updateInputs();
+                let outputs = this.brain.predict(this.inputs);
+                this.aiControl(dt, outputs);
+            }
         }
    
 
         this.pos.add(this.vel.mult(dt));
         this.orientation += this.rotation * dt;
+        this.orientation = this.orientation % (2*Math.PI);
 
         this.rotation = 0;
         this.vel.mult(0);
@@ -202,6 +240,7 @@ class Tank {
         this.projectiles.forEach(p => {
             p.update(dt);
         })
+
         this.timer += dt;
         if(!this.died) this.score++;
     }

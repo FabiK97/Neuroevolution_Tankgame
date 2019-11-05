@@ -6,22 +6,23 @@ function nextGen() {
 
     for (let i = 0; i < POP_SIZE; i++) {
         let tank = selectOne();
-        population[i] = new Game(gamemode.PLAYER_VS_AI, tank);
+        population[i] = new Game(gamemode.BOT_VS_AI, tank);
     }
 
     savedTanks = [];
 }
 
 function calculateFitness() {
-    let highscore = 0;
+    highScore = 0;
     let sum = 0;
     let deathcounter = 0;
+    avgHitaccuracy = 0;
 
     //sum up all the scores from all the tanks
     for (let i = 0; i < POP_SIZE; i++) {
+        calculateScore(savedTanks[i]);
 
-        //if he is a winner tank, scale his score based on the time it took him to kill the other tank
-        if(savedTanks[i].isWinner) {
+        /* if(savedTanks[i].isWinner) {
             let scoreMult = map(savedTanks[i].time, 1, 100, 50, 20);
             savedTanks[i].score *= scoreMult;
         } else {
@@ -32,10 +33,11 @@ function calculateFitness() {
             } else {
                 savedTanks[i].score /= 5;
             }
-        }
+        } */
 
-        if(savedTanks[i].score > highscore) {
-            highscore = savedTanks[i].score;
+        //calculate best Tank
+        if(savedTanks[i].score > highScore) {
+            highScore = savedTanks[i].score;
             bestTank = savedTanks[i];
         }
 
@@ -43,6 +45,7 @@ function calculateFitness() {
     }
 
     avgScore = sum/POP_SIZE;
+    avgHitaccuracy = avgHitaccuracy/POP_SIZE;
     console.log("avg Score: " + avgScore);
     console.log("deaths:    " + deathcounter);
 
@@ -50,6 +53,18 @@ function calculateFitness() {
     for (let i = 0; i < POP_SIZE; i++) {
         savedTanks[i].fitness = savedTanks[i].score / sum;
     }   
+}
+
+function calculateScore(tank) {
+
+    let hitaccuracy = tank.hitCount / tank.shootCount;
+    avgHitaccuracy += hitaccuracy;
+    tank.score *= (hitaccuracy * hitaccuracy);
+    
+    if(tank.died || tank.shootCount <= 4) 
+        tank.score /= 10;
+
+    //tank.score = tank.score * tank.score;
 }
 
 /**

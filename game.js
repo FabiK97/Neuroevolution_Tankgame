@@ -25,6 +25,18 @@ class Game {
                 this.tanks[0].isPlayerTank = false;
                 this.tanks[1].isPlayerTank = false;
                 break;
+            case 3:
+                if(tank){
+                    this.tanks.push(tank);
+                } else {
+                    this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
+                }
+                this.tanks.push(new Tank(width/2 - 200, height/2, -Math.PI/2));
+                this.tanks[0].isPlayerTank = false;
+                this.tanks[0].enemy = this.tanks[1];
+                this.tanks[1].isPlayerTank = false;
+                this.tanks[1].isBot = true;
+                break;
         }
 
 
@@ -79,7 +91,8 @@ class Game {
                         if(t !== tank) {
                             tank.isWinner = true;
                             tank.time = this.timer;
-                            this.isOver = true;
+                            tank.hitCount++;
+                            //this.isOver = true;
                         } else {
                             this.isOver = true;
                         }

@@ -8,6 +8,7 @@ class Projectile {
         this.h = 20;
         this.cr = 5;
         this.bounced = false;
+        this.MAXSPEED = 0.2;
     }
 
     bounceOff(v) {
@@ -32,9 +33,9 @@ class Projectile {
 
     update(dt) {
         this.vel = p5.Vector.fromAngle(this.orientation);
-        this.vel.setMag(0.2);
+        this.vel.setMag(this.MAXSPEED);
         this.pos.add(this.vel.mult(dt));
-        this.vel.setMag(0.2);  
+        this.vel.setMag(this.MAXSPEED);  
     }
     
     show() {

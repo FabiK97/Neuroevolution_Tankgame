@@ -64,7 +64,7 @@ function calculateScore(tank) {
     if(tank.died || tank.shootCount <= 4) 
         tank.score /= 10;
 
-    //tank.score = tank.score * tank.score;
+    tank.score = Math.pow(tank.score, 2);
 }
 
 /**

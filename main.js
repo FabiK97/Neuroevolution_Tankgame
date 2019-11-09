@@ -44,7 +44,7 @@ function setup() {
   initLegend();
 
   for(let i = 0; i < POP_SIZE; i++) {
-    population[i] = new Game(gamemode.BOT_VS_AI);
+    population[i] = new Game(gamemode.PLAYER_VS_AI);
   }
 }
   

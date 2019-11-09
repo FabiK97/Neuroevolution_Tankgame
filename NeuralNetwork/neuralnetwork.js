@@ -95,6 +95,35 @@ class NeuralNetwork {
         this.bias_o = this.bias_o.map(mutate);
         
     }
+
+    /**
+     * Take in the parents neural networks and select random weights of the mother and father
+     */
+    static crossover(mother, father) {
+
+        let father_weigths = [];
+        father_weigths.push(father.weights_i_h1.clone());
+        father_weigths.push(father.weights_h1_h2.clone());
+        father_weigths.push(father.weights_h2_o.clone());
+
+        let child = mother.copy();
+
+        let child_weights = [];
+        child_weights.push(child.weights_i_h1);
+        child_weights.push(child.weights_h1_h2);
+        child_weights.push(child.weights_h2_o);
+
+        for(let i = 0; i < father_weigths.length; i++) {
+                father_weigths[i].forEach(function (value, index, matrix) {
+                    if(Math.random() < 0.5) {
+                        child_weights[i].subset(math.index(index[0], index[1]), value);
+                    }
+              });
+        }
+
+        return child;
+
+    }
 }
 
 

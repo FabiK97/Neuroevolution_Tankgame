@@ -16,6 +16,8 @@ var avgScore;
 var avgHitaccuracy;
 var highScore;
 
+var scoreHistory = [];
+
 var showReviewLabel;
 var renderLabel;
 var sliderLabel;
@@ -23,6 +25,7 @@ var generationLabel;
 var avgLabel;
 var hitaccuracyLabel;
 
+var scorePlot;
 var canvas;
 
 var gamemode = {
@@ -42,6 +45,7 @@ function setup() {
   avgScore = 0;
   
   initLegend();
+  setupPlot();
 
   for(let i = 0; i < POP_SIZE; i++) {
     population[i] = new Game(gamemode.PLAYER_VS_AI);
@@ -73,6 +77,8 @@ function draw() {
     if(population.length == 0) {
       nextGen();
       generationCount++;
+      scoreHistory.push(avgScore);
+      plotScore();
       updateLegend();
       timer = 0;
     }
@@ -184,4 +190,27 @@ function toggleRendering() {
 
 function toggleRenderMode() {
   showReviewGame = this.checked();
+}
+
+function setupPlot() {
+  ctx = document.getElementById('scorePlot').getContext('2d');
+  scorePlot = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [0],
+      datasets: [{
+        data: scoreHistory,
+        label: 'Score',
+      }],
+    },
+    options: {responsive: false},
+  });
+}
+
+function plotScore() {
+  let labels = [...Array(generationCount-1).keys()];
+  console.log(labels);
+  scorePlot.data.labels = labels;
+  scorePlot.data.datasets[0].data = scoreHistory;
+  scorePlot.update();
 }

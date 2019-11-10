@@ -28,7 +28,7 @@ class Tank {
         if(brain) {
             this.brain = brain.copy();
         } else {
-            this.brain = new NeuralNetwork(6, 20, 18, 5);
+            this.brain = new NeuralNetwork(6, 20, 5);
         }
         this.inputs = [];
         this.score = 0;

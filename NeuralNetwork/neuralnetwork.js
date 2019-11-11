@@ -20,7 +20,6 @@ class NeuralNetwork {
 
 
         this.weights_i_h = math.zeros(nodes_1, nodes_2);
-       
         if(nodes_4) {
             this.weights_h1_h2 = math.zeros(nodes_2, nodes_3);
             this.weights_h_o = math.zeros(nodes_3, nodes_4);
@@ -165,6 +164,36 @@ class NeuralNetwork {
 
         return child;
 
+    }
+
+    serialize() {
+        return JSON.stringify(this);
+    }
+
+    static deserialize(data) {
+        if (typeof data == 'string') {
+            data = JSON.parse(data, math.reviver);
+            console.log(data);
+        }
+
+        let nn;
+        if(data.hn_2) {
+            nn = new NeuralNetwork(data.in, data.hn_1, data.hn_2, data.on);
+        } else {
+            nn = new NeuralNetwork(data.in, data.hn_1, data.on);
+        }
+
+        nn.weights_i_h = data.weights_i_h;
+        nn.bias_h1 = data.bias_h1;
+
+        if(data.hn_2) {
+            nn.weights_h1_h2 = data.weights_h1_h2;
+            nn.bias_h2 = data.bias_h2; 
+        }
+
+        nn.weights_h_o = data.weights_h_o;
+        nn.bias_o = data.bias_o; 
+        return nn;
     }
 }
 

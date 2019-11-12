@@ -5,8 +5,16 @@ function nextGen() {
     calculateFitness();
 
     for (let i = 0; i < POP_SIZE; i++) {
-        let tank = selectOne();
-        population[i] = new Game(gamemode.BOT_VS_AI, tank);
+        let mother = selectOne();
+        let father = selectOne();
+
+        let childBrain = NeuralNetwork.crossover(mother.brain, father.brain);
+        //let child = mother.copy();
+
+        let child = new Tank(width/2 + 200, height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
+        child.mutate();
+        
+        population[i] = new Game(gamemode.PLAYER_VS_AI, child);
     }
 
     savedTanks = [];
@@ -59,10 +67,11 @@ function calculateScore(tank) {
 
     let hitaccuracy = tank.hitCount / tank.shootCount;
     avgHitaccuracy += hitaccuracy;
-    tank.score *= (hitaccuracy * hitaccuracy);
+    tank.score *= tank.hitCount;
     
-    if(tank.died || tank.shootCount <= 4) 
+    if(tank.died || tank.shootCount <= 4) {
         tank.score /= 10;
+    }
 
     tank.score = Math.pow(tank.score, 2);
 }
@@ -84,8 +93,5 @@ function selectOne() {
     }
     index--;
     
-    let tank = savedTanks[index];
-    let child = new Tank(width/2 + 200, height/2, -Math.PI/2, tank.brain.copy()); //create a new Tank and pass him the neural network of the picked tank
-    child.mutate();
-    return child;
+    return savedTanks[index];
 }

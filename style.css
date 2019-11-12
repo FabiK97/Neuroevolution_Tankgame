@@ -2,4 +2,22 @@ html, body {
     margin: 0;
     padding: 0;
   }
+
+
+#scorePlot {
+  position: absolute;
+  left: 800px;
+}
+
+.configBox {
+  display: flex;
+  margin: 20px; padding: 10px;
+  border: 2px solid black;
+  max-width: 750px;
+}
+
+.col {
+  display: block;
+  width: 50%;
+}
   

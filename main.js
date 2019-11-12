@@ -1,7 +1,7 @@
 
 var population = [];
 var savedTanks = [];
-var brainJSON;
+var loadedbrain;
 
 //Constants
 const POP_SIZE = 70;
@@ -25,7 +25,9 @@ var highScore;
 var gameSpeedSlider;
 var renderCheckbox;
 var renderRadio;
+var savedOption;
 var generationCount;
+var loadInput;
 
 var canvas;
 var scorePlot;
@@ -63,7 +65,6 @@ function setup() {
   
   initLegend();
   setupPlot();
-  loadJsonFromFile();
 
   for(let i = 0; i < POP_SIZE; i++) {
     population[i] = new Game(gamemode.BOT_VS_AI);
@@ -160,9 +161,8 @@ function updateReviewGame() {
 }
 
 function updateSavedGame() {
-    if((!savedGame || savedGame.isOver) && brainJSON) {
-      brainJSON = JSON.stringify(brainJSON);
-      console.log(brainJSON);
+    if((!savedGame || savedGame.isOver) && loadedbrain) {
+      let brainJSON = JSON.stringify(loadedbrain);
       let brain = NeuralNetwork.deserialize(brainJSON);
       let tank = new Tank(width/2 + 200, height/2, -Math.PI/2, brain);
       savedGame = new Game(gamemode.PLAYER_VS_AI, tank);
@@ -189,7 +189,15 @@ function updateSavedGame() {
 }
 
 function loadJsonFromFile() {
-  brainJSON = loadJSON('tankbrain_2400.json');
+  let filename = loadInput.value();
+  loadedbrain = loadJSON(`${filename.indexOf(".json") > 0 ? filename : (filename + ".json")}`, checkObj);
+}
+
+function checkObj(obj) {
+  if(obj.in == population[0].tanks[1].brain.in &&
+     obj.on == population[0].tanks[1].brain.on) {
+    savedOption.disabled = false;
+  }
 }
 
 function initLegend() {
@@ -210,7 +218,9 @@ function initLegend() {
   renderRadio = createRadio();
   renderRadio.option('Training', 1);
   renderRadio.option('Review', 2);
-  renderRadio.option('Saved', 3);
+  savedOption = renderRadio.option('Saved', 3);
+  console.log(savedOption);
+  savedOption.disabled = true;
   renderRadio.style('width', '110px');
   textAlign(CENTER);
   rendermodeLabel = createElement('div', "Rendermode: ");
@@ -226,8 +236,20 @@ function initLegend() {
   avgLabel = createElement('div', `Average Score: <strong>${Math.round(avgScore)}</strong>`);
   hitaccuracyLabel = createElement('div', `Hitaccuracy: <strong>${(Math.round(avgHitaccuracy*100)/100)}</strong>`);
 
-  let button = createButton('Download Best');
-  button.mousePressed(downloadBest);
+  let downloaddiv = createElement('div');
+  let downloadbutton = createButton('Download Best');
+  downloadbutton.mousePressed(downloadBest);
+  downloaddiv.child(downloadbutton);
+
+  let loaddiv = createElement('div');
+  loadInput = createInput();
+  let loadbutton = createButton('Load Tank');
+  loadbutton.mousePressed(loadJsonFromFile);
+  loaddiv.child(loadInput);
+  loaddiv.child(loadbutton);
+
+
+  
 
   renderLabel.style("font-size: 1.5em; margin: 10px");  
   rendermodeLabel.style("font-size: 1.5em; margin: 10px");  
@@ -235,6 +257,9 @@ function initLegend() {
   generationLabel.style("font-size: 1.5em; margin: 10px");
   avgLabel.style("font-size: 1.5em; margin: 10px");
   hitaccuracyLabel.style("font-size: 1.5em; margin: 10px");
+  downloaddiv.style("margin: 10px");
+  loaddiv.style("margin: 10px");
+
 
 
   col1.child(generationLabel);
@@ -243,7 +268,8 @@ function initLegend() {
   col2.child(sliderLabel);
   col2.child(renderLabel);
   col2.child(rendermodeLabel);
-  col2.child(button);
+  col2.child(downloaddiv);
+  col2.child(loaddiv);
 
   configBox.child(col1);
   configBox.child(col2);

@@ -92,7 +92,7 @@ class Tank {
 
     aiControl(dt, outputs) {
 
-        if(outputs[0] > 0.5) {
+        /* if(outputs[0] > 0.5) {
 
             this.vel = p5.Vector.fromAngle(this.orientation);
             this.vel.setMag(0.2); 
@@ -102,8 +102,18 @@ class Tank {
             this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
             this.vel.setMag(0.2);  
         }
-        
-        if(outputs[2] > 0.5) {
+         */
+
+        let speed = map(outputs[0], 0, 1, -1, 1);
+        if(speed>0) {
+            this.vel = p5.Vector.fromAngle(this.orientation);
+            this.vel.setMag(Math.abs(speed)*0.2); 
+        } else {
+            this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+            this.vel.setMag(Math.abs(speed)*0.2);
+        }
+
+        /* if(outputs[2] > 0.5) {
             this.rotation = 0.004;
             this.turret.rotate(0.004);
         }
@@ -111,19 +121,14 @@ class Tank {
         if(outputs[3] > 0.5) {
             this.rotation = -0.004;   
             this.turret.rotate(-0.004);                        
-        }
-
-        //turn Turret
-        /* if(outputs[4] > 0.5) {
-            this.turret.rotate(0.002);
-        }
-        
-        if(outputs[5] > 0.5) {
-            this.turret.rotate(-0.002);                        
         } */
 
+        let angle = map(outputs[3], 0, 1, -Math.PI, Math.PI);
+        this.orientation = angle;
+        this.turret.orientation = angle;
+
         //shoot
-        if(outputs[4] > 0.5) {
+        if(outputs[3] > 0.5) {
             if(this.timer > this.firerate) {
                 this.shoot();
                 this.shootCount++;
@@ -147,7 +152,7 @@ class Tank {
         } else {
             this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
         }
-        this.vel.setMag(0.2);  
+        this.vel.setMag(0.05);  
 
     }
 
@@ -185,6 +190,10 @@ class Tank {
         this.inputs.push(map(this.pos.x, 0, width, 0, 1));
         this.inputs.push(map(this.pos.y, 0, height, 0, 1));
 
+        //My Velocity
+        this.inputs.push(map(this.vel.x, 0, 0.2, 0, 1));
+        this.inputs.push(map(this.vel.y, 0, 0.2, 0, 1));
+
         //My Direction
         this.inputs.push(map(this.orientation, 0, 2*Math.PI, 0, 1));
 
@@ -205,6 +214,10 @@ class Tank {
         this.inputs.push(map(this.enemy.pos.x, 0, width, 0, 1));
         this.inputs.push(map(this.enemy.pos.y, 0, height, 0, 1));
 
+        //Enemy Tank Velocity
+        this.inputs.push(map(this.enemy.vel.x, 0, width, 0, 1));
+        this.inputs.push(map(this.enemy.vel.y, 0, height, 0, 1));
+
         //angle to enemy
         let dist = p5.Vector.sub(this.enemy.pos, this.pos);
         let distangle = Math.atan2(dist.y, dist.x);
@@ -215,7 +228,8 @@ class Tank {
     }
 
     update(dt) {
-                
+        this.vel.mult(0);
+        
         if(this.isPlayerTank) {
             this.handleInputs(dt);
         } else {
@@ -234,7 +248,6 @@ class Tank {
         this.orientation = this.orientation % (2*Math.PI);
 
         this.rotation = 0;
-        this.vel.mult(0);
         
         this.turret.update(this.pos.x, this.pos.y, dt);
         this.projectiles.forEach(p => {

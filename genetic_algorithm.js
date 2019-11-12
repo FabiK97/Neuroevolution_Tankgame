@@ -73,7 +73,7 @@ function calculateScore(tank) {
         tank.score /= 10;
     }
 
-    //tank.score = tank.score * tank.score;
+    tank.score = Math.pow(tank.score, 2);
 }
 
 /**

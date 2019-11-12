@@ -6,7 +6,7 @@ var brainJSON;
 //Constants
 const POP_SIZE = 70;
 const fr = 60;
-const MAX_GAME_LENGTH = 20;
+const MAX_GAME_LENGTH = 30;
 const MAX_GAME_SPEED = 200;
 
 //Rendering
@@ -66,13 +66,13 @@ function setup() {
   loadJsonFromFile();
 
   for(let i = 0; i < POP_SIZE; i++) {
-    population[i] = new Game(gamemode.PLAYER_VS_AI);
+    population[i] = new Game(gamemode.BOT_VS_AI);
   }
 }
   
 function draw() {
   //to increase the training speed, update the game multiple times per frame
-  let dt = 50;
+  let dt = 40;
 
   if(renderRadio.value()) {
     console.log(renderRadio.value());
@@ -224,7 +224,7 @@ function initLegend() {
 
   generationLabel = createElement('div', `Generation: <strong>${generationCount}</strong>`);
   avgLabel = createElement('div', `Average Score: <strong>${Math.round(avgScore)}</strong>`);
-  hitaccuracyLabel = createElement('div', `Average Score: <strong>${Math.round(avgHitaccuracy)}</strong>`);
+  hitaccuracyLabel = createElement('div', `Hitaccuracy: <strong>${(Math.round(avgHitaccuracy*100)/100)}</strong>`);
 
   let button = createButton('Download Best');
   button.mousePressed(downloadBest);
@@ -256,7 +256,7 @@ function initLegend() {
 function updateLegend() {
   generationLabel.html(`Generation: <strong>${generationCount}</strong>`)
   avgLabel.html(`Average Score: <strong>${Math.round(avgScore)}</strong>`)
-  hitaccuracyLabel.html(`Average Score: <strong>${Math.round(avgHitaccuracy)}</strong>`)
+  hitaccuracyLabel.html(`Average Score: <strong>${(Math.round(avgHitaccuracy*100)/100)}</strong>`)
 
 }
 

@@ -14,7 +14,7 @@ function nextGen() {
         let child = new Tank(width/2 + 200, height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
         child.mutate();
         
-        population[i] = new Game(gamemode.PLAYER_VS_AI, child);
+        population[i] = new Game(gamemode.BOT_VS_AI, child);
     }
 
     savedTanks = [];
@@ -73,7 +73,7 @@ function calculateScore(tank) {
         tank.score /= 10;
     }
 
-    tank.score = Math.pow(tank.score, 2);
+    //tank.score = Math.pow(tank.score, 2);
 }
 
 /**

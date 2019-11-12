@@ -4,6 +4,7 @@ class Tank {
         this.vel = createVector();
         this.orientation = dir;
         this.rotation = 0;
+        this.MAXROTATION = 0.1;
         this.w = 60;
         this.h = 50;
         this.cr = 25;
@@ -15,6 +16,7 @@ class Tank {
 
         this.firerate = 1000;
         this.timer = 0;
+        this.bottimer = 0;
 
         this.isWinner = false;
         this.hitCount = 1;
@@ -28,7 +30,7 @@ class Tank {
         if(brain) {
             this.brain = brain.copy();
         } else {
-            this.brain = new NeuralNetwork(6, 20, 15, 5);
+            this.brain = new NeuralNetwork(10,20,3);
         }
         this.inputs = [];
         this.score = 0;
@@ -123,12 +125,12 @@ class Tank {
             this.turret.rotate(-0.004);                        
         } */
 
-        let angle = map(outputs[3], 0, 1, -Math.PI, Math.PI);
-        this.orientation = angle;
-        this.turret.orientation = angle;
+        let angle = map(outputs[1], 0, 1, -this.MAXROTATION, this.MAXROTATION);
+        this.rotation = angle;
+        this.turret.rotate(angle);
 
         //shoot
-        if(outputs[3] > 0.5) {
+        if(outputs[2] > 0.7) {
             if(this.timer > this.firerate) {
                 this.shoot();
                 this.shootCount++;
@@ -141,18 +143,29 @@ class Tank {
         
         if(this.pos.y < 100) {
             this.botdir = false;
+            this.bottimer = 0;
+            this.pos.y = 101;
         }
 
         if(this.pos.y > height - 100) {
             this.botdir = true;
+            this.bottimer = 0;
+            this.pos.y = height - 101;
+
         }
 
-        if(this.botdir) {
-            this.vel = p5.Vector.fromAngle(this.orientation);
+        if(this.bottimer > 2000) {
+           if(this.botdir) {
+                this.vel = p5.Vector.fromAngle(this.orientation);
+            } else {
+                this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+            } 
+            this.vel.setMag(0.1);  
         } else {
-            this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+            this.bottimer += dt;
+            this.vel.mult(0);
         }
-        this.vel.setMag(0.05);  
+        
 
     }
 

@@ -35,6 +35,7 @@ class Game {
                 this.tanks[0].isPlayerTank = false;
                 this.tanks[0].enemy = this.tanks[1];
                 this.tanks[1].isPlayerTank = false;
+                this.tanks[1].enemy = this.tanks[0];
                 this.tanks[1].isBot = true;
                 break;
         }
@@ -92,9 +93,11 @@ class Game {
                             tank.isWinner = true;
                             tank.time = this.timer;
                             tank.hitCount++;
-                            //this.isOver = true;
+                            if(tank.isBot) {
+                                this.isOver = true;
+                            }
                         } else {
-                            this.isOver = true;
+                            if(!tank.isBot) this.isOver = true;
                         }
                     }
                     

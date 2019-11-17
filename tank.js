@@ -30,7 +30,7 @@ class Tank {
         if(brain) {
             this.brain = brain.copy();
         } else {
-            this.brain = new NeuralNetwork(10,20,3);
+            this.brain = new NeuralNetwork(11,20, 15,3);
         }
         this.inputs = [];
         this.score = 0;
@@ -141,7 +141,7 @@ class Tank {
 
     botControl(dt) {
         
-        if(this.pos.y < 100) {
+        /* if(this.pos.y < 100) {
             this.botdir = false;
             this.bottimer = 0;
             this.pos.y = 101;
@@ -164,8 +164,17 @@ class Tank {
         } else {
             this.bottimer += dt;
             this.vel.mult(0);
-        }
+        } */
+
+        //shooting at AI
         
+        let dist = p5.Vector.sub(this.enemy.pos, this.pos);
+        let distangle = Math.atan2(dist.y, dist.x);
+        this.turret.orientation = distangle;
+        
+        if(this.projectiles.length == 0) {
+            this.shoot();
+        }
 
     }
 
@@ -236,6 +245,27 @@ class Tank {
         let distangle = Math.atan2(dist.y, dist.x);
         this.angletoenemy = this.orientation - distangle;
         this.inputs.push(map(this.angletoenemy, 0, 2*Math.PI, 0, 1));
+
+        //position of enemy projectiles
+       /*  if(this.enemy.projectiles[0]){
+            this.inputs.push(map(this.enemy.projectiles[0].pos.x, 0, width, 0, 1));
+            this.inputs.push(map(this.enemy.projectiles[0].pos.y, 0, height, 0, 1));
+        } else {
+            this.inputs.push(1);
+            this.inputs.push(1);
+        }  */
+
+        //distance to enemy projectiles
+        if(this.enemy.projectiles[0] && this.enemy.isPlayerTank){
+            let dist = p5.Vector.dist(this.enemy.projectiles[0].pos, this.pos);
+            let max  = Math.sqrt(width*width + height*height);
+            dist = map(dist, 0, max, 0, 1);
+            console.log(dist);
+            this.inputs.push(dist);
+        } else {
+            this.inputs.push(1);
+        }
+        
 
 
     }

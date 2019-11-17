@@ -6,7 +6,7 @@ var loadedbrain;
 //Constants
 const POP_SIZE = 70;
 const fr = 60;
-const MAX_GAME_LENGTH = 30;
+const MAX_GAME_LENGTH = 20;
 const MAX_GAME_SPEED = 200;
 
 //Rendering

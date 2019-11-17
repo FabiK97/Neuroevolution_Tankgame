@@ -151,8 +151,15 @@ function draw() {
 function updateReviewGame() {
     if((!reviewGame || reviewGame.isOver) && bestTank) {
       let tank = new Tank(width/2 + 200, height/2, -Math.PI/2, bestTank.brain.copy());
+      if(current_gm == gamemode.AI_VS_AI) {
+        let tank2 = new Tank(width/2 - 200, height/2, -Math.PI/2, secondTank.brain.copy());
+        reviewGame = new Game(current_gm, tank, tank2);
+      } else {
+        reviewGame = new Game(current_gm, tank);
+      }
       console.log("besttank: ", bestTank.score);
-      reviewGame = new Game(current_gm, tank);
+      console.log("secondtank: ", secondTank.score);
+      
     }
     
     if(reviewGame) {

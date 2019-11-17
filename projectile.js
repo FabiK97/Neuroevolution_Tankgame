@@ -7,7 +7,7 @@ class Projectile {
         this.w = 7;
         this.h = 20;
         this.cr = 5;
-        this.bounced = false;
+        this.bounced = true;
         this.MAXSPEED = 0.2;
     }
 

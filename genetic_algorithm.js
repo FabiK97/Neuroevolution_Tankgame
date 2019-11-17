@@ -1,4 +1,5 @@
 var bestTank;
+var secondTank;
 var current_gm;
 function nextGen() {
     calculateFitness();
@@ -58,8 +59,14 @@ function calculateFitness() {
 
         //calculate best Tank
         if(savedTanks[i].score > highScore) {
-            highScore = savedTanks[i].score;
-            bestTank = savedTanks[i];
+            if(current_gm = gamemode.AI_VS_AI) {
+                secondTank = bestTank;
+                bestTank = savedTanks[i];
+                highScore = savedTanks[i].score;
+            } else {
+                highScore = savedTanks[i].score;
+                bestTank = savedTanks[i];
+            }
         }
 
         sum += savedTanks[i].score;

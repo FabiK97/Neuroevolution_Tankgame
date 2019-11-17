@@ -150,10 +150,10 @@ class Tank {
             this.pos.y = 101;
         }
 
-        if(this.pos.y > height - 100) {
+        if(this.pos.y > game_height - 100) {
             this.botdir = true;
             this.bottimer = 0;
-            this.pos.y = height - 101;
+            this.pos.y = game_height - 101;
 
         }
 
@@ -212,8 +212,8 @@ class Tank {
     updateInputs() {
         this.inputs = [];
         //My Position
-        this.inputs.push(map(this.pos.x, 0, width, 0, 1));
-        this.inputs.push(map(this.pos.y, 0, height, 0, 1));
+        this.inputs.push(map(this.pos.x, 0, game_width, 0, 1));
+        this.inputs.push(map(this.pos.y, 0, game_height, 0, 1));
 
         //My Velocity
         this.inputs.push(map(this.vel.x, 0, 0.2, 0, 1));
@@ -228,20 +228,20 @@ class Tank {
          */
         //Projectile Position
         /* if(this.projectiles.length > 0) {
-            this.inputs.push(map(this.turret.pos.x, 0, width, 0, 1));
-            this.inputs.push(map(this.turret.pos.y, 0, height, 0, 1));
+            this.inputs.push(map(this.turret.pos.x, 0, game_width, 0, 1));
+            this.inputs.push(map(this.turret.pos.y, 0, game_height, 0, 1));
         } else {
-            this.inputs.push(map(this.pos.x, 0, width, 0, 1));
-            this.inputs.push(map(this.pos.y, 0, height, 0, 1));
+            this.inputs.push(map(this.pos.x, 0, game_width, 0, 1));
+            this.inputs.push(map(this.pos.y, 0, game_height, 0, 1));
         } */
 
         //Enemy Tank Position
-        this.inputs.push(map(this.enemy.pos.x, 0, width, 0, 1));
-        this.inputs.push(map(this.enemy.pos.y, 0, height, 0, 1));
+        this.inputs.push(map(this.enemy.pos.x, 0, game_width, 0, 1));
+        this.inputs.push(map(this.enemy.pos.y, 0, game_height, 0, 1));
 
         //Enemy Tank Velocity
-        this.inputs.push(map(this.enemy.vel.x, 0, width, 0, 1));
-        this.inputs.push(map(this.enemy.vel.y, 0, height, 0, 1));
+        this.inputs.push(map(this.enemy.vel.x, 0, game_width, 0, 1));
+        this.inputs.push(map(this.enemy.vel.y, 0, game_height, 0, 1));
 
         //angle to enemy
         let dist = p5.Vector.sub(this.enemy.pos, this.pos);
@@ -251,8 +251,8 @@ class Tank {
 
         //position of enemy projectiles
        /*  if(this.enemy.projectiles[0]){
-            this.inputs.push(map(this.enemy.projectiles[0].pos.x, 0, width, 0, 1));
-            this.inputs.push(map(this.enemy.projectiles[0].pos.y, 0, height, 0, 1));
+            this.inputs.push(map(this.enemy.projectiles[0].pos.x, 0, game_width, 0, 1));
+            this.inputs.push(map(this.enemy.projectiles[0].pos.y, 0, game_height, 0, 1));
         } else {
             this.inputs.push(1);
             this.inputs.push(1);
@@ -261,7 +261,7 @@ class Tank {
         //distance to enemy projectiles
         if(this.enemy.projectiles[0] && this.enemy.isPlayerTank){
             let dist = p5.Vector.dist(this.enemy.projectiles[0].pos, this.pos);
-            let max  = Math.sqrt(width*width + height*height);
+            let max  = Math.sqrt(game_width*game_width + game_height*game_height);
             dist = map(dist, 0, max, 0, 1);
             console.log(dist);
             this.inputs.push(dist);

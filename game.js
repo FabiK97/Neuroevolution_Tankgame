@@ -5,17 +5,17 @@ class Game {
         this.tanks = [];
         switch(gamemode) {
             case 0: //MULTIPLAYER
-                this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
-                this.tanks.push(new Tank(width/2 - 200, height/2, -Math.PI/2)); 
+                this.tanks.push(new Tank(game_width/2 + 200, game_height/2, -Math.PI/2));
+                this.tanks.push(new Tank(game_width/2 - 200, game_height/2, -Math.PI/2)); 
                 this.tanks[0].setControls(Tank.WASD);     
                 break;
             case 1: //PLAYER vs AI
                 if(tank1){
                     this.tanks.push(tank1);
                 } else {
-                    this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
+                    this.tanks.push(new Tank(game_width/2 + 200, game_height/2, -Math.PI/2));
                 }
-                this.tanks.push(new Tank(width/2 - 200, height/2, -Math.PI/2));
+                this.tanks.push(new Tank(game_width/2 - 200, game_height/2, -Math.PI/2));
                 this.tanks[0].isPlayerTank = false;
                 this.tanks[0].enemy = this.tanks[1];
                 break;
@@ -24,8 +24,8 @@ class Game {
                     this.tanks.push(tank1);
                     this.tanks.push(tank2);
                 } else {
-                    this.tanks.push(new Tank(width/2 + 100, height/2, -Math.PI/2));
-                    this.tanks.push(new Tank(width/2 - 100, height/2, -Math.PI/2));
+                    this.tanks.push(new Tank(game_width/2 + 100, game_height/2, -Math.PI/2));
+                    this.tanks.push(new Tank(game_width/2 - 100, game_height/2, -Math.PI/2));
                 }
                 this.tanks[0].isPlayerTank = false;
                 this.tanks[0].enemy = this.tanks[1];
@@ -37,9 +37,9 @@ class Game {
                 if(tank1){
                     this.tanks.push(tank1);
                 } else {
-                    this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
+                    this.tanks.push(new Tank(game_width/2 + 200, game_height/2, -Math.PI/2));
                 }
-                this.tanks.push(new Tank(width/2 - 200, height/2, -Math.PI/2));
+                this.tanks.push(new Tank(game_width/2 - 200, game_height/2, -Math.PI/2));
                 this.tanks[0].isPlayerTank = false;
                 this.tanks[0].enemy = this.tanks[1];
                 this.tanks[1].isPlayerTank = false;
@@ -54,11 +54,11 @@ class Game {
         this.obstacles = [];
 
         //Walls
-        this.obstacles.push(new Obstacle(0, 0, width, 10));
-        this.obstacles.push(new Obstacle(width - 10, 0, width, height));
-        this.obstacles.push(new Obstacle(0, height-10, width, height));
-        this.obstacles.push(new Obstacle(0, 10, 10, height));
-        //this.obstacles.push(new Obstacle(width/2 - 25, 100, 50, height - 200));
+        this.obstacles.push(new Obstacle(0, 0, game_width, 10));
+        this.obstacles.push(new Obstacle(game_width - 10, 0, 10, game_height));
+        this.obstacles.push(new Obstacle(0, game_height-10, game_width, game_height));
+        this.obstacles.push(new Obstacle(0, 10, 10, game_height));
+        //this.obstacles.push(new Obstacle(game_width/2 - 25, 100, 50, game_height - 200));
 
         this.isOver = false;
         this.timer = 0;

@@ -10,6 +10,8 @@ const MAX_GAME_LENGTH = 20;
 const MAX_GAME_SPEED = 200;
 
 //Rendering
+var game_width = 800;
+var game_height = 600;
 var render = true;
 var reviewGame;
 var savedGame;
@@ -31,6 +33,7 @@ var loadInput;
 
 var canvas;
 var scorePlot;
+var numberarray = [];
 
 //HTML Labels
 var rendermodeLabel;
@@ -56,7 +59,7 @@ var RenderModes = {
 
 function setup() { 
   //Init things here
-  createCanvas(800,600);
+  createCanvas(game_width+400,game_height);
   frameRate(fr);
 
   current_gm = gamemode.AI_VS_AI;
@@ -70,6 +73,14 @@ function setup() {
   //create a new Population of Games
   for(let i = 0; i < POP_SIZE; i++) {
     population[i] = new Game(current_gm);
+  }
+
+  let nn = population[0].tanks[0].brain;
+  if(nn) {
+    numberarray.push(nn.in);
+    numberarray.push(nn.hn_1);
+    if(nn.hn_2) numberarray.push(nn.hn_2);
+    numberarray.push(nn.on);
   }
 }
   
@@ -131,6 +142,7 @@ function draw() {
     switch(rendermode) {
       case RenderModes.TRAINING: 
           background(219, 187, 126);
+          rect
           for(let i = 0; i < population.length; i++) {
             population[i].render();
           } 
@@ -146,6 +158,7 @@ function draw() {
   } else {
       canvas.style.display = "none";
   }
+  drawNeuralNetwork();
 }
 
 function updateReviewGame() {
@@ -304,8 +317,75 @@ function initLegend() {
 function updateLegend() {
   generationLabel.html(`Generation: <strong>${generationCount}</strong>`)
   avgLabel.html(`Average Score: <strong>${Math.round(avgScore)}</strong>`)
-  hitaccuracyLabel.html(`Average Score: <strong>${(Math.round(avgHitaccuracy*100)/100)}</strong>`)
+  hitaccuracyLabel.html(`Hitaccuracy: <strong>${(Math.round(avgHitaccuracy*100)/100)}</strong>`)
+}
 
+function drawNeuralNetwork() {
+  var infoheight = 500;
+  var infowidth = 400;
+  fill(255);
+  stroke(0);
+  strokeWeight(3);
+  rect(game_width,0,infowidth - 2, game_height-2);
+  strokeWeight(1);
+
+  let nodesarray = [numberarray.length];
+
+  let largest = 0;
+  
+  for(let nodes of numberarray) {
+    if(nodes > largest) largest = nodes;
+  }
+  
+  let d = (infoheight*0.65)/largest;
+  if(d>50) d=50;
+  let xoffset = 100;
+  let yoffset =  (infoheight*0.2)/largest;
+ 
+  let maxheight = (largest-1)*yoffset + largest*d;
+  
+  for(let i = 0; i < numberarray.length; i++) {
+    nodesarray[i] = [];
+    for(let j = 0; j < numberarray[i]; j++) {
+      let layerheight = (numberarray[i]-1)*yoffset + numberarray[i]*d;
+      nodesarray[i].push({x: game_width + infowidth*0.1 + xoffset*i, y: infoheight*0.32 + (maxheight-layerheight)/2 + j*(d+yoffset)});
+    }
+  }
+
+  stroke(0);
+  ellipseMode(CORNER);
+
+  for(let i = 0; i < nodesarray.length; i++) {
+    for(let j = 0; j < nodesarray[i].length; j++) {
+      ellipse(nodesarray[i][j].x,nodesarray[i][j].y, d, d);
+      if(nodesarray[i+1]) {
+        for(let node of nodesarray[i+1]) {
+          line(nodesarray[i][j].x + d,nodesarray[i][j].y + d/2, node.x, node.y+d/2);
+        }
+      }
+    }
+  }
+
+  fill(0)
+  textAlign(LEFT);
+  textSize(22);
+  text('Neural Network: ',game_width + 10, 30);
+  textSize(18);
+
+  for(let i = 0; i < numberarray.length; i++) {
+    if(i==0) {
+      text('Inputs:       ' + numberarray[i], game_width + 10, 55 + i*25);
+    } else if(i==numberarray.length-1) {
+      text('Outputs:    ' + numberarray[i], game_width + 10, 55 +  i*25);
+    } else {
+      text('Hidden-'+ (i) + ':  ' + numberarray[i], game_width + 10, 55 +  i*25);
+    }
+    
+  }
+  
+  
+  
+  //ellipse(0,i*(d+offset), d, d);
 }
 
 function toggleRendering() {

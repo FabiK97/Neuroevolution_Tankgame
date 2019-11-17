@@ -11,7 +11,7 @@ function nextGen() {
         let childBrain = NeuralNetwork.crossover(mother.brain, father.brain);
         //let child = mother.copy();
 
-        var child = new Tank(width/2 + 200, height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
+        var child = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
         child.mutate();
 
         if(current_gm == gamemode.AI_VS_AI) {
@@ -20,7 +20,7 @@ function nextGen() {
 
             let childBrain = NeuralNetwork.crossover(mother.brain, father.brain);
 
-            var child2  = new Tank(width/2 - 200, height/2, -Math.PI/2, childBrain);
+            var child2  = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, childBrain);
             child2.mutate();
 
             population[i] = new Game(current_gm, child, child2);

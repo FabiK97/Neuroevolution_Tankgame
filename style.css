@@ -6,7 +6,10 @@ html, body {
 
 #scorePlot {
   position: absolute;
+  top: 600px;
   left: 800px;
+  height: 310px;
+  width: 400px;
 }
 
 .configBox {

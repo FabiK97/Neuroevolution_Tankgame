@@ -23,6 +23,7 @@ class TankTurret {
             fill(150);
             translate(this.pos.x, this.pos.y);
             rotate(this.orientation);
+            ellipseMode(CENTER);
             ellipse(0, 0, 30,30);
             fill(100)
             rect(-5,-5, 40, 10);

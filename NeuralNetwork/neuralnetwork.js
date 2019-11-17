@@ -50,6 +50,7 @@ class NeuralNetwork {
         
         this.bias_o = math.zeros(this.on);
         this.bias_o = this.bias_o.map(randomize);
+
     }
 
 
@@ -65,7 +66,6 @@ class NeuralNetwork {
         let h1_inputs = math.multiply(inputs, this.weights_i_h);
             h1_inputs = math.add(h1_inputs, this.bias_h1);
         let h1_outputs = h1_inputs.map(sigmoid);
-
         
         //calculate signals into second hidden layer if exists
         if(this.hn_2) {

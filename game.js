@@ -1,17 +1,17 @@
 class Game {
-    constructor(gamemode = 0, tank) {
+    constructor(gamemode = 0, tank1, tank2) {
         this.gamemode = gamemode;
   
         this.tanks = [];
         switch(gamemode) {
-            case 0: 
+            case 0: //MULTIPLAYER
                 this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
                 this.tanks.push(new Tank(width/2 - 200, height/2, -Math.PI/2)); 
                 this.tanks[0].setControls(Tank.WASD);     
                 break;
-            case 1: 
-                if(tank){
-                    this.tanks.push(tank);
+            case 1: //PLAYER vs AI
+                if(tank1){
+                    this.tanks.push(tank1);
                 } else {
                     this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
                 }
@@ -19,15 +19,23 @@ class Game {
                 this.tanks[0].isPlayerTank = false;
                 this.tanks[0].enemy = this.tanks[1];
                 break;
-            case 2: 
-                this.tanks.push(new Tank(width/2 + 100, height/2, -Math.PI/2));
-                this.tanks.push(new Tank(width/2 - 100, height/2, -Math.PI/2));
+            case 2: //AI vs AI
+                if(tank1 && tank2) {
+                    this.tanks.push(tank1);
+                    this.tanks.push(tank2);
+                } else {
+                    this.tanks.push(new Tank(width/2 + 100, height/2, -Math.PI/2));
+                    this.tanks.push(new Tank(width/2 - 100, height/2, -Math.PI/2));
+                }
                 this.tanks[0].isPlayerTank = false;
+                this.tanks[0].enemy = this.tanks[1];
+
                 this.tanks[1].isPlayerTank = false;
+                this.tanks[1].enemy = this.tanks[0];
                 break;
-            case 3:
-                if(tank){
-                    this.tanks.push(tank);
+            case 3: //BOT vs AI
+                if(tank1){
+                    this.tanks.push(tank1);
                 } else {
                     this.tanks.push(new Tank(width/2 + 200, height/2, -Math.PI/2));
                 }
@@ -40,6 +48,7 @@ class Game {
                 break;
         }
 
+        this.tanks[1].blue = true;
 
 
         this.obstacles = [];
@@ -64,10 +73,13 @@ class Game {
     update(dt) {
         for(let tank of this.tanks) {
             tank.update(dt);
+
+            //check if tank collides with an obstacle (or wall)
             this.obstacles.forEach(obstacle => {
                 obstacle.checkCollision(tank);
             });
 
+            //check if two tanks collide
             for(let t of this.tanks) {
                 if(tank.checkTankCollision(t)) {
                     let force = p5.Vector.sub(t.pos, tank.pos);
@@ -79,6 +91,8 @@ class Game {
 
             for (let i = 0; i < tank.projectiles.length; i++) {
                 for(let t of this.tanks) {
+
+                    //check if two projectiles collide
                     for (let j = 0; j < t.projectiles.length; j++) {
                         if(t.projectiles[j].checkCollision(tank.projectiles[i])) {
                             t.projectiles.splice(j, 1);
@@ -86,9 +100,12 @@ class Game {
                         }
                     }
 
+                    //check if tank is hit by a projectile
                     if(t.checkHit(tank.projectiles[i])) {
                         tank.projectiles.splice(i, 1);
-                        t.died = true;
+                        //t.died = true;
+
+                        //if he didn´t hit himself, he increase his hits
                         if(t !== tank) {
                             tank.isWinner = true;
                             tank.time = this.timer;
@@ -103,6 +120,7 @@ class Game {
                     
                 }
 
+                //check if projectile hit wall
                 for(var o of this.obstacles) {
                         if(tank.projectiles[i]) {
                             if(o.checkCollision(tank.projectiles[i])) {

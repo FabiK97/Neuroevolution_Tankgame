@@ -25,6 +25,7 @@ class Tank {
         this.died = false;
         this.isPlayerTank = true;
         this.isBot = false;
+        this.blue = false;
         this.botdir = true;
         this.controls = 0;
         if(brain) {
@@ -141,6 +142,8 @@ class Tank {
 
     botControl(dt) {
         
+        //moving up and down
+
         /* if(this.pos.y < 100) {
             this.botdir = false;
             this.bottimer = 0;
@@ -304,7 +307,7 @@ class Tank {
     show() {
         push();
             noStroke();
-            if(!this.isPlayerTank) {
+            if(!this.blue) {
                 fill(152, 76, 52);
             } else {
                 fill(39, 72, 97);

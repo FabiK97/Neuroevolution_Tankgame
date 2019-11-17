@@ -1,7 +1,6 @@
 var bestTank;
-
+var current_gm;
 function nextGen() {
-
     calculateFitness();
 
     for (let i = 0; i < POP_SIZE; i++) {
@@ -11,10 +10,24 @@ function nextGen() {
         let childBrain = NeuralNetwork.crossover(mother.brain, father.brain);
         //let child = mother.copy();
 
-        let child = new Tank(width/2 + 200, height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
+        var child = new Tank(width/2 + 200, height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
         child.mutate();
+
+        if(current_gm == gamemode.AI_VS_AI) {
+            let mother = selectOne();
+            let father = selectOne();
+
+            let childBrain = NeuralNetwork.crossover(mother.brain, father.brain);
+
+            var child2  = new Tank(width/2 - 200, height/2, -Math.PI/2, childBrain);
+            child2.mutate();
+
+            population[i] = new Game(current_gm, child, child2);
+
+        } else {
+            population[i] = new Game(current_gm, child);
+        }
         
-        population[i] = new Game(gamemode.BOT_VS_AI, child);
     }
 
     savedTanks = [];
@@ -28,7 +41,7 @@ function calculateFitness() {
 
     //sum up all the scores from all the tanks
     for (let i = 0; i < POP_SIZE; i++) {
-        calculateScore(savedTanks[i]);
+        //calculateScore(savedTanks[i]);
 
         /* if(savedTanks[i].isWinner) {
             let scoreMult = map(savedTanks[i].time, 1, 100, 50, 20);

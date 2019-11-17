@@ -59,6 +59,7 @@ function setup() {
   createCanvas(800,600);
   frameRate(fr);
 
+  current_gm = gamemode.AI_VS_AI;
   
   generationCount = 1;
   avgScore = 0;
@@ -66,8 +67,9 @@ function setup() {
   initLegend();
   setupPlot();
 
+  //create a new Population of Games
   for(let i = 0; i < POP_SIZE; i++) {
-    population[i] = new Game(gamemode.BOT_VS_AI);
+    population[i] = new Game(current_gm);
   }
 }
   
@@ -75,11 +77,13 @@ function draw() {
   //to increase the training speed, update the game multiple times per frame
   let dt = 40;
 
+  //Get selected Radiobutton as Gamemode
   if(renderRadio.value()) {
     console.log(renderRadio.value());
     rendermode = parseInt(renderRadio.value());
   }
 
+  //update the population n times
   for(let n = 0; n < gameSpeedSlider.value(); n++) {
     if(rendermode == RenderModes.TRAINING) {
       timer += (dt/1000);
@@ -94,7 +98,17 @@ function draw() {
         var game = population[i];
         if(game.isOver || timer > MAX_GAME_LENGTH) {
           let game = population.splice(i, 1)[0];
-          savedTanks.push(game.tanks[0]);
+          calculateScore(game.tanks[0]);
+          if(game.gamemode == gamemode.AI_VS_AI) {
+            calculateScore(game.tanks[1]);
+            if(game.tanks[0].score > game.tanks[0].score) {
+              savedTanks.push(game.tanks[0]);
+            } else {
+              savedTanks.push(game.tanks[1]);
+            }
+          } else {
+            savedTanks.push(game.tanks[0]);
+          }
         }
       }
 
@@ -110,7 +124,8 @@ function draw() {
     }
   }
 
-  //Show Canvas and Render Population
+  //Show canvas and render corresponding rendermode
+  //TODO: auslagern des updaten und renderns der population
   if(render) {
     canvas.style.display = "block";
     switch(rendermode) {
@@ -137,7 +152,7 @@ function updateReviewGame() {
     if((!reviewGame || reviewGame.isOver) && bestTank) {
       let tank = new Tank(width/2 + 200, height/2, -Math.PI/2, bestTank.brain.copy());
       console.log("besttank: ", bestTank.score);
-      reviewGame = new Game(gamemode.PLAYER_VS_AI, tank);
+      reviewGame = new Game(current_gm, tank);
     }
     
     if(reviewGame) {

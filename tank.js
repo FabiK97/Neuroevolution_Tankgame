@@ -91,6 +91,8 @@ class Tank {
                 this.timer = 0;
             }
         }
+
+        
     }
 
     aiControl(dt, outputs) {
@@ -132,12 +134,20 @@ class Tank {
 
         //shoot
         if(outputs[2] > 0.7) {
-            if(this.timer > this.firerate) {
-                this.shoot();
-                this.shootCount++;
-                this.timer = 0;
+            if(this.enemy.brain) {
+                if(this.projectiles.length == 0) {
+                    this.shoot();
+                    this.shootCount++;
+                }
+            } else {
+                if(this.timer > this.firerate) {
+                    this.shoot();
+                    this.shootCount++;
+                    this.timer = 0;
+                }
             }
         }
+       
     }
 
     botControl(dt) {

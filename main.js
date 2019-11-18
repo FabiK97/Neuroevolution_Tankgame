@@ -14,9 +14,12 @@ var game_width = 800;
 var game_height = 600;
 var render = true;
 var reviewGame;
+var playvsbestGame;
 var savedGame;
 var rendermode = 1;
 var timer = 0;
+var reviewtimer = 0;
+
 
 var scoreHistory = [];
 var avgScore;
@@ -54,7 +57,8 @@ var gamemode = {
 var RenderModes = {
   TRAINING: 1,
   REVIEW: 2,
-  SAVED: 3,
+  PLAYVSBEST: 3,
+  SAVED: 4,
 }
 
 function setup() { 
@@ -150,6 +154,9 @@ function draw() {
       case RenderModes.REVIEW: 
           updateReviewGame();
           break;
+      case RenderModes.PLAYVSBEST:
+          updatePlayVsBest();
+          break;
       case RenderModes.SAVED:
           updateSavedGame();
           break;
@@ -162,17 +169,17 @@ function draw() {
 }
 
 function updateReviewGame() {
-    if((!reviewGame || reviewGame.isOver) && bestTank) {
-      let tank = new Tank(width/2 + 200, height/2, -Math.PI/2, bestTank.brain.copy());
+    if((!reviewGame || reviewGame.isOver || reviewtimer > MAX_GAME_LENGTH) && bestTank) {
+      let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, bestTank.brain.copy());
       if(current_gm == gamemode.AI_VS_AI) {
-        let tank2 = new Tank(width/2 - 200, height/2, -Math.PI/2, secondTank.brain.copy());
+        let tank2 = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, secondTank.brain.copy());
         reviewGame = new Game(current_gm, tank, tank2);
       } else {
         reviewGame = new Game(current_gm, tank);
       }
       console.log("besttank: ", bestTank.score);
       console.log("secondtank: ", secondTank.score);
-      
+      reviewtimer = 0;
     }
     
     if(reviewGame) {
@@ -192,14 +199,41 @@ function updateReviewGame() {
       noStroke();
       textSize(20);
       text("Highscore: " + highScore, 10, 30);
+      reviewtimer += deltaTime/1000 ;
     }
+}
+
+function updatePlayVsBest() {
+  if((!playvsbestGame || playvsbestGame.isOver || keyIsDown(82)) && bestTank) {
+    let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, bestTank.brain.copy());
+    playvsbestGame = new Game(gamemode.PLAYER_VS_AI, tank);    
+  }
+  
+  if(playvsbestGame) {
+    playvsbestGame.update(deltaTime);
+    
+    background(219, 187, 126);
+    playvsbestGame.render();
+    let d = p5.Vector.sub(playvsbestGame.tanks[0].enemy.pos, playvsbestGame.tanks[0].pos)
+    let p = playvsbestGame.tanks[0].pos;
+    let o = p5.Vector.fromAngle(playvsbestGame.tanks[0].orientation);
+    o.mult(100);
+    stroke(255);
+    strokeWeight(2);
+    line(p.x,p.y,p.x+d.x,p.y+d.y);
+    line(p.x,p.y,p.x+o.x,p.y+o.y);
+    fill(0);
+    noStroke();
+    textSize(20);
+    text("Highscore: " + highScore, 10, 30);
+  }
 }
 
 function updateSavedGame() {
     if((!savedGame || savedGame.isOver) && loadedbrain) {
       let brainJSON = JSON.stringify(loadedbrain);
       let brain = NeuralNetwork.deserialize(brainJSON);
-      let tank = new Tank(width/2 + 200, height/2, -Math.PI/2, brain);
+      let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, brain);
       savedGame = new Game(gamemode.PLAYER_VS_AI, tank);
     }
     
@@ -253,7 +287,8 @@ function initLegend() {
   renderRadio = createRadio();
   renderRadio.option('Training', 1);
   renderRadio.option('Review', 2);
-  savedOption = renderRadio.option('Saved', 3);
+  renderRadio.option('vs. Best', 3);
+  savedOption = renderRadio.option('Saved', 4);
   console.log(savedOption);
   savedOption.disabled = true;
   renderRadio.style('width', '110px');

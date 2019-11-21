@@ -4,7 +4,7 @@ class Tank {
         this.vel = createVector();
         this.orientation = dir;
         this.rotation = 0;
-        this.MAXROTATION = 0.1;
+        this.MAXROTATION = 0.05;
         this.w = 60;
         this.h = 50;
         this.cr = 25;
@@ -26,12 +26,13 @@ class Tank {
         this.isPlayerTank = true;
         this.isBot = false;
         this.blue = false;
+        this.color = {R: random(0,200), G: random(0,200), B:random(0,200)};
         this.botdir = true;
         this.controls = 0;
         if(brain) {
             this.brain = brain.copy();
         } else {
-            this.brain = new NeuralNetwork(11,20, 15,3);
+            this.brain = new NeuralNetwork(12,20, 15,3);
         }
         this.inputs = [];
         this.score = 0;
@@ -46,7 +47,7 @@ class Tank {
     }
 
     mutate() {
-        this.brain.mutate(0.04);
+        this.brain.mutate(0.10);
     }
 
     setControls(controls) {
@@ -135,9 +136,10 @@ class Tank {
         //shoot
         if(outputs[2] > 0.7) {
             if(this.enemy.brain) {
-                if(this.projectiles.length == 0) {
+                if(this.projectiles.length == 0 && this.timer > this.firerate) {
                     this.shoot();
                     this.shootCount++;
+                    this.timer = 0;
                 }
             } else {
                 if(this.timer > this.firerate) {
@@ -260,16 +262,16 @@ class Tank {
         this.inputs.push(map(this.angletoenemy, 0, 2*Math.PI, 0, 1));
 
         //position of enemy projectiles
-       /*  if(this.enemy.projectiles[0]){
+        if(this.enemy.projectiles[0]){
             this.inputs.push(map(this.enemy.projectiles[0].pos.x, 0, game_width, 0, 1));
             this.inputs.push(map(this.enemy.projectiles[0].pos.y, 0, game_height, 0, 1));
         } else {
             this.inputs.push(1);
             this.inputs.push(1);
-        }  */
+        } 
 
         //distance to enemy projectiles
-        if(this.enemy.projectiles[0] && this.enemy.isPlayerTank){
+        /* if(this.enemy.projectiles[0] && this.enemy.isPlayerTank){
             let dist = p5.Vector.dist(this.enemy.projectiles[0].pos, this.pos);
             let max  = Math.sqrt(game_width*game_width + game_height*game_height);
             dist = map(dist, 0, max, 0, 1);
@@ -277,7 +279,7 @@ class Tank {
             this.inputs.push(dist);
         } else {
             this.inputs.push(1);
-        }
+        } */
         
 
 
@@ -317,11 +319,12 @@ class Tank {
     show() {
         push();
             noStroke();
-            if(!this.blue) {
+            /* if(!this.blue) {
                 fill(152, 76, 52);
             } else {
                 fill(39, 72, 97);
-            }
+            } */
+            fill(this.color.R,this.color.G,this.color.B);
             translate(this.pos.x, this.pos.y);
             rotate(this.orientation);
             rectMode(CENTER);

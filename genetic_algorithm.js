@@ -13,6 +13,7 @@ function nextGen() {
 
         var child = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
         child.mutate();
+        child.color = mother.color;
 
         if(current_gm == gamemode.AI_VS_AI) {
             let mother = selectOne();
@@ -22,6 +23,7 @@ function nextGen() {
 
             var child2  = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, childBrain);
             child2.mutate();
+            child2.color = mother.color;
 
             population[i] = new Game(current_gm, child, child2);
 
@@ -59,7 +61,7 @@ function calculateFitness() {
 
         //calculate best Tank
         if(savedTanks[i].score > highScore) {
-            if(current_gm = gamemode.AI_VS_AI) {
+            if(current_gm == gamemode.AI_VS_AI) {
                 secondTank = bestTank;
                 bestTank = savedTanks[i];
                 highScore = savedTanks[i].score;

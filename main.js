@@ -4,7 +4,7 @@ var savedTanks = [];
 var loadedbrain;
 
 //Constants
-const POP_SIZE = 70;
+const POP_SIZE = 40;
 const fr = 60;
 const MAX_GAME_LENGTH = 20;
 const MAX_GAME_SPEED = 200;

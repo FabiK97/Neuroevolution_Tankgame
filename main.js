@@ -65,7 +65,6 @@ function setup() {
   //Init things here
   createCanvas(game_width+400,game_height);
   frameRate(fr);
-
   current_gm = gamemode.AI_VS_AI;
   
   generationCount = 1;
@@ -346,7 +345,8 @@ function initLegend() {
 
 
   canvas = document.getElementsByClassName("p5Canvas")[0];
-
+  let main = document.getElementsByClassName("maincanvas")[0];
+  main.appendChild(canvas);
 }
 
 function updateLegend() {

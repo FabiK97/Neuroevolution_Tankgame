@@ -1,5 +1,8 @@
 <html>
   <head>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
     <script src="Libraries/p5.js"></script>
     <script src="Libraries/math.min.js"></script>
@@ -14,8 +17,85 @@
     <script src="NeuralNetwork/neuralnetwork.js"></script>
 
     <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
   </head>
   <body>
-      <canvas id="scorePlot" width="400" height="400"></canvas>
+      <div class="row">
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar border-right pr-0">
+          <div class="sidebar-sticky">
+              <div class="list-group list-group-flush">
+                  <a href="#" class="list-group-item disabled bg-dark text-light">Live</a>
+                  <a href="#" class="list-group-item list-group-item-action bg-light">Multiplayer</a>
+                  <a href="#" class="list-group-item list-group-item-action bg-light">Training</a>
+              </div>
+              <div class="list-group list-group-flush">
+                  <a href="#" class="list-group-item disabled bg-dark text-light">Saved Games</a>
+                  <a href="#" class="list-group-item list-group-item-action bg-light">Stationary</a>
+                  <a href="#" class="list-group-item list-group-item-action bg-light">Moving</a>
+              </div>
+          </div>
+        </nav>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 ">
+            <div class="d-flex pt-3 pb-2 mb-3 border-bottom">
+              <h1 class="h2">Neuroevolution</h1>
+            </div>
+            <div class="maincanvas"></div>
+            <div class="d-flex flex-row">
+              <div class="mr-4">
+                  <div class="card mt-3" style="width: 18rem;">
+                      <div class="card-header">
+                        Information
+                      </div>
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Generation: </li>
+                        <li class="list-group-item">Average Score:</li>
+                        <li class="list-group-item">Hitaccuracy:</li>
+                      </ul>
+                  </div>
+              </div>
+              <div class="mr-4">
+                  <div class="card mt-3" style="width: 18rem;">
+                      <div class="card-header">
+                        Options
+                      </div>
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item" id="gamespeed">
+
+                        </li>
+                        <li class="list-group-item">
+                            <h6>Rendermode: </h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+                                <label class="form-check-label" for="exampleRadios1">
+                                  Training
+                                </label>
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+                                <label class="form-check-label" for="exampleRadios2">
+                                  Best
+                                </label>
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3" disabled>
+                                <label class="form-check-label" for="exampleRadios3">
+                                  Play vs Best
+                                </label>
+                              </div>
+                        </li>
+                        <li class="list-group-item">
+                            <button type="button" class="btn btn-primary">Download</button>
+                        </li>
+                      </ul>
+                  </div>
+              </div>
+              <div class="mr-3">
+                <canvas id="scorePlot" width="400" height="400"></canvas>
+              </div>
+            </div>
+              
+        </main>
+      </div>
   </body>
 </html>

@@ -19,6 +19,7 @@ var savedGame;
 var rendermode = 1;
 var timer = 0;
 var reviewtimer = 0;
+var uimanager;
 
 
 var scoreHistory = [];
@@ -72,7 +73,7 @@ function setup() {
   
   initLegend();
   setupPlot();
-
+  uimanager = new UIManager();
   //create a new Population of Games
   for(let i = 0; i < POP_SIZE; i++) {
     population[i] = new Game(current_gm);
@@ -165,6 +166,7 @@ function draw() {
       canvas.style.display = "none";
   }
   drawNeuralNetwork();
+  uimanager.update();
 }
 
 function updateReviewGame() {

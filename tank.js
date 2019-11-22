@@ -55,7 +55,6 @@ class Tank {
     }
 
     handleInputs() {
-
         let SPACE_KEY = 32;
         if((this.controls == 0 && keyIsDown(UP_ARROW)) || (this.controls == 1 && keyIsDown(87))) {
 

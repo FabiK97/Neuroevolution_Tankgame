@@ -25,15 +25,15 @@ function nextGen() {
             child2.mutate();
             child2.color = mother.color;
 
-            population[i] = new Game(current_gm, child, child2);
+            gamemanager.population[i] = new Game(current_gm, child, child2);
 
         } else {
-            population[i] = new Game(current_gm, child);
+            gamemanager.population[i] = new Game(current_gm, child);
         }
         
     }
 
-    savedTanks = [];
+    gamemanager.savedTanks = [];
 }
 
 function calculateFitness() {
@@ -60,18 +60,18 @@ function calculateFitness() {
         } */
 
         //calculate best Tank
-        if(savedTanks[i].score > highScore) {
+        if(gamemanager.savedTanks[i].score > highScore) {
             if(current_gm == gamemode.AI_VS_AI) {
                 secondTank = bestTank;
-                bestTank = savedTanks[i];
-                highScore = savedTanks[i].score;
+                bestTank = gamemanager.savedTanks[i];
+                highScore = gamemanager.savedTanks[i].score;
             } else {
                 highScore = savedTanks[i].score;
-                bestTank = savedTanks[i];
+                bestTank = gamemanager.savedTanks[i];
             }
         }
 
-        sum += savedTanks[i].score;
+        sum += gamemanager.savedTanks[i].score;
     }
 
     avgScore = sum/POP_SIZE;
@@ -81,7 +81,7 @@ function calculateFitness() {
 
     //normalize the score and save it as fitness
     for (let i = 0; i < POP_SIZE; i++) {
-        savedTanks[i].fitness = savedTanks[i].score / sum;
+        gamemanager.savedTanks[i].fitness = gamemanager.savedTanks[i].score / sum;
     }   
 }
 
@@ -110,10 +110,10 @@ function selectOne() {
     var r = random(1);
 
     while(r > 0) {
-        r = r - savedTanks[index].fitness;
+        r = r - gamemanager.savedTanks[index].fitness;
         index++;
     }
     index--;
     
-    return savedTanks[index];
+    return gamemanager.savedTanks[index];
 }

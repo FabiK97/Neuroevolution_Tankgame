@@ -35,13 +35,14 @@ class UIManager {
         this.hitaccuracyElement = document.getElementById("ha");
 
         //Options
+        this.optionsBox = document.getElementById("optionsbox");
         this.gameSpeedSlider = createSlider(1,MAX_GAME_SPEED,1);
         this.sliderBox = document.getElementById("sliderbox");
         this.gameSpeedSlider.parent(this.sliderBox);
 
         //Radios
         this.renderModeRadios = document.getElementsByName("renderModeRadios");
-        this.renderMode;
+        this.renderMode = "training";
         for(let element of this.renderModeRadios) {
             element.addEventListener("click", function() {uimanager.renderMode = this.id});
         }
@@ -49,11 +50,21 @@ class UIManager {
         //Download
         this.downloadButton = document.getElementById("download");
         this.downloadButton.addEventListener("click", downloadBest);
+
+        //Graph
+        this.scorePlot = document.getElementById("scorePlot");
         
     }
 
     update() {
         this.updateInfoBox();
+        if(this.selectedMode == "Multiplayer") {
+            this.optionsBox.style.display = "none";
+            this.scorePlot.style.display = "none";
+        } else {
+            this.optionsBox.style.display = "block";
+            this.scorePlot.style.display = "block";
+        }
     }
 
     updateInfoBox() {

@@ -87,7 +87,7 @@ class GameManager {
               for(let i = this.population.length - 1; i >= 0; i--) {
                 
                 if(this.population[i].isOver || timer > MAX_GAME_LENGTH) { 
-
+                  avgHitaccuracy = 0;
                   let game = this.population.splice(i, 1)[0];
                   calculateScore(game.tanks[0]);
 

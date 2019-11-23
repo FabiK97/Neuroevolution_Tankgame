@@ -52,7 +52,7 @@ class Tank {
             "projectile-position-x": true,
             "projectile-position-y": true,
         };
-        this.botMode = "moving-y";
+        this.botMode = "stationary";
         this.outputMode = "mapped";
     }
 

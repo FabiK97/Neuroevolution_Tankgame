@@ -40,7 +40,6 @@ function calculateFitness() {
     highScore = 0;
     let sum = 0;
     let deathcounter = 0;
-    avgHitaccuracy = 0;
 
     //sum up all the scores from all the tanks
     for (let i = 0; i < POP_SIZE; i++) {
@@ -73,11 +72,9 @@ function calculateFitness() {
 
         sum += gamemanager.savedTanks[i].score;
     }
-
     avgScore = sum/POP_SIZE;
     avgHitaccuracy = avgHitaccuracy/POP_SIZE;
-    console.log("avg Score: " + avgScore);
-    console.log("deaths:    " + deathcounter);
+    console.log("avg ha: " + avgHitaccuracy);
 
     //normalize the score and save it as fitness
     for (let i = 0; i < POP_SIZE; i++) {
@@ -87,8 +84,8 @@ function calculateFitness() {
 
 function calculateScore(tank) {
 
-    let hitaccuracy = tank.hitCount / tank.shootCount;
-    avgHitaccuracy += hitaccuracy;
+    tank.hitaccuracy = tank.hitCount / tank.shootCount;
+    avgHitaccuracy += tank.hitaccuracy;
     tank.score *= tank.hitCount;
     
     if(tank.died || tank.shootCount <= 4) {

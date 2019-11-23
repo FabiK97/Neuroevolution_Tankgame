@@ -824,6 +824,9 @@
         },
         "botMode": "moving-y",
         "outputMode": "mapped",
-        "gamemode": 3
+        "gamemode": 3,
+        "generation": 1000,
+        "score": 4500,
+        "hitaccuracy": 0.15
       }
 }

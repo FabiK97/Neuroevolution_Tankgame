@@ -15,7 +15,7 @@ class UIManager {
         
 
         for(let element of this.modeElements) {
-            element.addEventListener("click", function() {uimanager.selectedMode = this.id});
+            element.addEventListener("click", function() {uimanager.selectedMode = this.id; uimanager.setupDrawingNeuralNetwork()});
         }
     
         //Information
@@ -97,17 +97,41 @@ class UIManager {
     }
 
     updateInfoBox() {
-        this.generationElement.innerHTML = generationCount;
-        this.averageScoreElement.innerHTML = avgScore;
-        if(avgHitaccuracy) this.hitaccuracyElement.innerHTML = avgHitaccuracy;
+        switch (this.selectedMode) {
+            case "Multiplayer":
+                 
+                break;
+        
+            case "Training":
+                    this.generationElement.innerHTML = generationCount;
+                    this.averageScoreElement.innerHTML = avgScore;
+                    console.log(avgHitaccuracy);
+                    if(avgHitaccuracy) this.hitaccuracyElement.innerHTML = avgHitaccuracy;
+                break;
+            case "Savedgame":
+                    this.generationElement.innerHTML = this.savedGames[this.selectedSavedGame].generation;
+                    this.averageScoreElement.innerHTML = this.savedGames[this.selectedSavedGame].score;
+                    this.hitaccuracyElement.innerHTML = this.savedGames[this.selectedSavedGame].hitaccuracy;
+            break;
+        }
+
     }
 
-    setupDrawingNeuralNetwork(nn) {
+    setupDrawingNeuralNetwork() {
+        let nn;
+        if(this.selectedMode == "Training") {
+          nn = gamemanager.population[0].tanks[0].brain;
+        } else if(this.selectedMode == "Savedgame") {
+          nn = this.savedGames[this.selectedSavedGame].tankbrain;
+        }
+
         this.numberarray = [];
-        this.numberarray.push(nn.in);
-        this.numberarray.push(nn.hn_1);
-        if(nn.hn_2) this.numberarray.push(nn.hn_2);
-        this.numberarray.push(nn.on);   
+          if(nn) {
+          this.numberarray.push(nn.in);
+          this.numberarray.push(nn.hn_1);
+          if(nn.hn_2) this.numberarray.push(nn.hn_2);
+          this.numberarray.push(nn.on);   
+        }
     }
 
     drawNeuralNetwork() {
@@ -192,6 +216,6 @@ function createSavedGamesUI() {
         a.html(game);
         a.id(game);
         a.parent(uimanager.savedgamesBox);
-        a.elt.addEventListener("click", function() {uimanager.selectedMode = "Savedgame"; uimanager.selectedSavedGame = this.id});
+        a.elt.addEventListener("click", function() {uimanager.selectedMode = "Savedgame"; uimanager.selectedSavedGame = this.id; uimanager.setupDrawingNeuralNetwork()});
     }
 }

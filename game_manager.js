@@ -6,7 +6,6 @@ class GameManager {
         this.uimanager = uim;
         this.reviewGame = 0;
         this.saveGame = null;
-        this.loadSavedGames();
     }
 
     setupTraining() {
@@ -32,7 +31,11 @@ class GameManager {
                 switch(this.uimanager.renderMode) {
                     case "training": 
                         this.updateTraining();
-                        this.renderTraining();
+                        if(this.uimanager.render) {
+                            this.renderTraining();
+                        } else {
+                            background(0);
+                        }
                     break;
                     case "best":
                         this.updateBestOfTraining(this.currentgm);
@@ -56,7 +59,7 @@ class GameManager {
             case "Savedgame":
                 switch(this.uimanager.savedgameRenderMode) {
                     case "review": 
-                        this.updateSavegame(this.savedGames[uimanager.selectedSavedGame].gamemode);
+                        this.updateSavegame(uimanager.savedGames[uimanager.selectedSavedGame].gamemode);
                         this.renderSavegame(); 
                     break;
                     case "playvsai":
@@ -154,13 +157,9 @@ class GameManager {
           }
     }
 
-    loadSavedGames() {
-        this.savedGames = loadJSON("savedGames.json", function(obj) {console.log(obj)});
-    }
-
     updateSavegame(gamemode) {
         if(!this.saveGame || this.saveGame.gamemode != gamemode || this.saveGame.isOver || this.reviewtimer > MAX_GAME_LENGTH) {
-            let gameobj = this.savedGames[uimanager.selectedSavedGame];
+            let gameobj = uimanager.savedGames[uimanager.selectedSavedGame];
             let brainJSON = JSON.stringify(gameobj.tankbrain);
             let brain = NeuralNetwork.deserialize(brainJSON);
             this.uimanager.setupDrawingNeuralNetwork(brain);

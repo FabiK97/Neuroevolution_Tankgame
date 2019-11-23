@@ -1,5 +1,6 @@
 class UIManager {
     constructor() {
+        this.loadSavedGames();
         this.init();
         this.numberarray = [];
     }
@@ -11,32 +12,25 @@ class UIManager {
         this.modeElements.push(document.getElementById("Training"));
 
         //create History
-        this.savedgamesBox = document.getElementById("savedgames");
-        this.selectedSavedGame;
-        let loaded = [
-            {name: "Stationary"},
-            {name: "Moving"},
-        ]
-        for(let game of loaded) {
-            let a = createElement("a");
-            a.class("list-group-item list-group-item-action bg-light");
-            a.html(game.name);
-            a.id(game.name);
-            a.parent(this.savedgamesBox);
-            a.elt.addEventListener("click", function() {uimanager.selectedMode = "Savedgame"; uimanager.selectedSavedGame = this.id});
-        }
+        
 
         for(let element of this.modeElements) {
             element.addEventListener("click", function() {uimanager.selectedMode = this.id});
         }
     
         //Information
+        this.infobox = document.getElementById("infobox");
         this.generationElement = document.getElementById("gen");
         this.averageScoreElement = document.getElementById("as");
         this.hitaccuracyElement = document.getElementById("ha");
 
         //Options
         this.optionsBox = document.getElementById("optionsbox");
+
+            //Render
+            this.renderCheckbox = document.getElementById("render");
+            this.render = true;
+            this.renderCheckbox.addEventListener("click", function() {uimanager.render = this.checked});
 
             //Slider
             this.gameSpeedSlider = createSlider(1,MAX_GAME_SPEED,1);
@@ -56,7 +50,7 @@ class UIManager {
         
 
         //Options-Savegames
-        this.optionsSavegameBox = document.getElementById("optionsbox");
+        this.optionsSavegameBox = document.getElementById("optionsbox-savedgame");
             
             //Radios
             this.savegameRenderModeRadios = document.getElementsByName("savegameRenderModeRadios");
@@ -72,13 +66,34 @@ class UIManager {
 
     update() {
         this.updateInfoBox();
-        if(this.selectedMode == "Multiplayer" || this.selectedMode == "Savedgame") {
-            this.optionsBox.style.display = "none";
-            this.scorePlot.style.display = "none";
-        } else {
-            this.optionsBox.style.display = "block";
-            this.scorePlot.style.display = "block";
+        switch (this.selectedMode) {
+            case "Multiplayer":
+                    this.optionsBox.style.display = "none";
+                    this.optionsSavegameBox.style.display = "none";
+                    this.scorePlot.style.display = "none";
+                    this.infobox.style.display = "none";
+                break;
+        
+            case "Training":
+                    this.optionsBox.style.display = "block";
+                    this.optionsSavegameBox.style.display = "none";
+                    this.scorePlot.style.display = "block";
+                    this.infobox.style.display = "block";
+                break;
+            case "Savedgame":
+                    this.optionsBox.style.display = "none";
+                    this.optionsSavegameBox.style.display = "block";
+                    this.scorePlot.style.display = "none";
+                    this.infobox.style.display = "block";
+            break;
         }
+
+        /* if(this.render) {
+            canvas.style.display = "block";
+        } else {
+            canvas.style.display = "none";
+        } */
+        
     }
 
     updateInfoBox() {
@@ -157,10 +172,26 @@ class UIManager {
           }
           
         }
-        
-        
-        
         //ellipse(0,i*(d+offset), d, d);
       }
 
+      loadSavedGames() {
+        this.savedGames = loadJSON("savedGames.json", function(obj) {createSavedGamesUI()});
+    }
+
+}
+
+function createSavedGamesUI() {
+    console.log("test");
+    uimanager.savedgamesBox = document.getElementById("savedgames");
+    uimanager.selectedSavedGame;
+
+    for(let game of Object.keys(uimanager.savedGames)) {
+        let a = createElement("a");
+        a.class("list-group-item list-group-item-action bg-light");
+        a.html(game);
+        a.id(game);
+        a.parent(uimanager.savedgamesBox);
+        a.elt.addEventListener("click", function() {uimanager.selectedMode = "Savedgame"; uimanager.selectedSavedGame = this.id});
+    }
 }

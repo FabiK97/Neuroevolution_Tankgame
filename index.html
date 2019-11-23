@@ -91,6 +91,33 @@
                       </ul>
                   </div>
               </div>
+              <div class="mr-4" id="optionsbox-savedgame">
+                <div class="card mt-3" style="width: 380px;">
+                    <div class="card-header">
+                      Options
+                    </div>
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item">
+                          <h6>Rendermode: </h6>
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" name="savegameRenderModeRadios" id="review" value="training" checked>
+                              <label class="form-check-label" for="training">
+                                Review
+                              </label>
+                            </div>
+                            <div class="form-check">
+                              <input class="form-check-input" type="radio" name="savegameRenderModeRadios" id="playvsai" value="best">
+                              <label class="form-check-label" for="playvsai">
+                                Play vs AI
+                              </label>
+                            </div>
+                      </li>
+                      <li class="list-group-item">
+                          <button type="button" class="btn btn-primary" id="trainwithmodel">Train with Model</button>
+                      </li>
+                    </ul>
+                </div>
+            </div>
               <div class="mr-3">
                 <canvas id="scorePlot" width="400" height="400"></canvas>
               </div>

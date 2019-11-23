@@ -16,6 +16,7 @@ class GameManager {
         for(let i = 0; i < POP_SIZE; i++) {
             this.population[i] = new Game(this.currentgm);
         }
+        this.uimanager.setupDrawingNeuralNetwork(this.population[0].tanks[0].brain);
     }
 
     run() {
@@ -35,11 +36,11 @@ class GameManager {
                     break;
                     case "best":
                         this.updateBestOfTraining(this.currentgm);
-                        this.renderBestOfTraining(this.currentgm);
+                        this.renderBestOfTraining();
                     break;
                     case "playvsbest":
                         this.updateBestOfTraining(gamemode.PLAYER_VS_AI);
-                        this.renderBestOfTraining(gamemode.PLAYER_VS_AI);
+                        this.renderBestOfTraining();
                     break;
                 }
                 
@@ -53,9 +54,17 @@ class GameManager {
                 this.game.render();
                 break;
             case "Savedgame":
-
-                this.updateSavegame(this.savedGames[uimanager.selectedSavedGame].gamemode);
-                this.renderSavegame();             
+                switch(this.uimanager.savedgameRenderMode) {
+                    case "review": 
+                        this.updateSavegame(this.savedGames[uimanager.selectedSavedGame].gamemode);
+                        this.renderSavegame(); 
+                    break;
+                    case "playvsai":
+                        this.updateSavegame(gamemode.PLAYER_VS_AI);
+                        this.renderSavegame(); 
+                    break;
+                }
+                           
 
                 break;
         }
@@ -112,6 +121,7 @@ class GameManager {
 
     updateBestOfTraining(gamemode) {
         if((!this.reviewGame || this.reviewGame.gamemode != gamemode || this.reviewGame.isOver || this.reviewtimer > MAX_GAME_LENGTH) && bestTank) {
+            this.uimanager.setupDrawingNeuralNetwork(bestTank.brain);
             let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, bestTank.brain.copy());
             if(gamemode == gamemode.AI_VS_AI) {
               let tank2 = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, secondTank.brain.copy());
@@ -153,6 +163,7 @@ class GameManager {
             let gameobj = this.savedGames[uimanager.selectedSavedGame];
             let brainJSON = JSON.stringify(gameobj.tankbrain);
             let brain = NeuralNetwork.deserialize(brainJSON);
+            this.uimanager.setupDrawingNeuralNetwork(brain);
             var tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, brain.copy());
             tank.inputConfig = gameobj.inputConfig;
             tank.outputMode = gameobj.outputMode;

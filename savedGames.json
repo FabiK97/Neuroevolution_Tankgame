@@ -774,7 +774,7 @@
             ]
           }
         },
-        "inputs": {
+        "inputConfig": {
           "position-x": true,
           "position-y": true,
           "velocity-x": true,
@@ -789,7 +789,7 @@
           "projectile-position-y": true
         },
         "botMode": "moving-y",
-        "outputs": {},
+        "outputMode": "mapped",
         "gamemode": 3
       }
     }

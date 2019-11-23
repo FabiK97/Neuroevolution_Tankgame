@@ -100,46 +100,6 @@ function draw() {
   drawNeuralNetwork();
 }
 
-function updateSavedGame() {
-    if((!savedGame || savedGame.isOver) && loadedbrain) {
-      let brainJSON = JSON.stringify(loadedbrain);
-      let brain = NeuralNetwork.deserialize(brainJSON);
-      let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, brain);
-      savedGame = new Game(gamemode.PLAYER_VS_AI, tank);
-    }
-    
-    if(savedGame) {
-      savedGame.update(deltaTime);
-      
-      background(219, 187, 126);
-      savedGame.render();
-      let d = p5.Vector.sub(savedGame.tanks[0].enemy.pos, savedGame.tanks[0].pos)
-      let p = savedGame.tanks[0].pos;
-      let o = p5.Vector.fromAngle(savedGame.tanks[0].orientation);
-      o.mult(100);
-      stroke(255);
-      strokeWeight(2);
-      line(p.x,p.y,p.x+d.x,p.y+d.y);
-      line(p.x,p.y,p.x+o.x,p.y+o.y);
-      fill(0);
-      noStroke();
-      textSize(20);
-      text("Highscore: " + highScore, 10, 30);
-    }
-}
-
-function loadJsonFromFile() {
-  let filename = loadInput.value();
-  loadedbrain = loadJSON(`${filename.indexOf(".json") > 0 ? filename : (filename + ".json")}`, checkObj);
-}
-
-function checkObj(obj) {
-  if(obj.in == population[0].tanks[1].brain.in &&
-     obj.on == population[0].tanks[1].brain.on) {
-    savedOption.disabled = false;
-  }
-}
-
 function drawNeuralNetwork() {
   var infoheight = 500;
   var infowidth = 400;
@@ -234,9 +194,10 @@ function plotScore() {
 function downloadBest() {
   let json = {
     tankbrain: bestTank.brain,
-    inputs: bestTank.inputConfig,
+    inputConfig: bestTank.inputConfig,
     botMode: bestTank.botMode,
-    outputs: bestTank.outputConfig,
+    outputMode: bestTank.outputMode,
+    gamemode: gamemanager.currentgm,
   };
   saveJSON(json, `tank_${Math.round(bestTank.score)}.json`);
 }

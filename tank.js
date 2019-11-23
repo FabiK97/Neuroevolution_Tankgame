@@ -53,7 +53,7 @@ class Tank {
             "projectile-position-y": true,
         };
         this.botMode = "moving-y";
-        this.outputConfig = {};
+        this.outputMode = "mapped";
     }
 
     static get ARROW_KEYS() {
@@ -114,57 +114,86 @@ class Tank {
 
     aiControl(dt, outputs) {
 
-        /* if(outputs[0] > 0.5) {
-
-            this.vel = p5.Vector.fromAngle(this.orientation);
-            this.vel.setMag(0.2); 
-
-        } else if(outputs[1] > 0.5) {
-
-            this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
-            this.vel.setMag(0.2);  
-        }
-         */
-
-        let speed = map(outputs[0], 0, 1, -1, 1);
-        if(speed>0) {
-            this.vel = p5.Vector.fromAngle(this.orientation);
-            this.vel.setMag(Math.abs(speed)*0.2); 
-        } else {
-            this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
-            this.vel.setMag(Math.abs(speed)*0.2);
-        }
-
-        /* if(outputs[2] > 0.5) {
-            this.rotation = 0.004;
-            this.turret.rotate(0.004);
-        }
+        switch (this.outputMode) {
+            case "binary":
+                
+                if(outputs[0] > 0.5) { //move forwards
         
-        if(outputs[3] > 0.5) {
-            this.rotation = -0.004;   
-            this.turret.rotate(-0.004);                        
-        } */
-
-        let angle = map(outputs[1], 0, 1, -this.MAXROTATION, this.MAXROTATION);
-        this.rotation = angle;
-        this.turret.rotate(angle);
-
-        //shoot
-        if(outputs[2] > 0.7) {
-            if(this.enemy.brain) {
-                if(this.projectiles.length == 0 && this.timer > this.firerate) {
-                    this.shoot();
-                    this.shootCount++;
-                    this.timer = 0;
+                    this.vel = p5.Vector.fromAngle(this.orientation);
+                    this.vel.setMag(0.2); 
+        
+                } else if(outputs[1] > 0.5) { //move backwards
+        
+                    this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+                    this.vel.setMag(0.2);  
                 }
-            } else {
-                if(this.timer > this.firerate) {
-                    this.shoot();
-                    this.shootCount++;
-                    this.timer = 0;
+                
+        
+        
+                if(outputs[2] > 0.5) { //turn right
+                    this.rotation = 0.004;
+                    this.turret.rotate(0.004);
                 }
-            }
+                
+                if(outputs[3] > 0.5) { //turn left
+                    this.rotation = -0.004;   
+                    this.turret.rotate(-0.004);                        
+                }
+
+                //shoot
+                if(outputs[2] > 0.7) {
+                    if(this.enemy.brain) {
+                        if(this.projectiles.length == 0 && this.timer > this.firerate) {
+                            this.shoot();
+                            this.shootCount++;
+                            this.timer = 0;
+                        }
+                    } else {
+                        if(this.timer > this.firerate) {
+                            this.shoot();
+                            this.shootCount++;
+                            this.timer = 0;
+                        }
+                    }
+                }
+
+                break;
+        
+            case "mapped":
+
+                let speed = map(outputs[0], 0, 1, -1, 1);
+                if(speed>0) {
+                    this.vel = p5.Vector.fromAngle(this.orientation);
+                    this.vel.setMag(Math.abs(speed)*0.2); 
+                } else {
+                    this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+                    this.vel.setMag(Math.abs(speed)*0.2);
+                }
+
+                let angle = map(outputs[1], 0, 1, -this.MAXROTATION, this.MAXROTATION);
+                this.rotation = angle;
+                this.turret.rotate(angle);
+        
+                //shoot
+                if(outputs[2] > 0.7) {
+                    if(this.enemy.brain) {
+                        if(this.projectiles.length == 0 && this.timer > this.firerate) {
+                            this.shoot();
+                            this.shootCount++;
+                            this.timer = 0;
+                        }
+                    } else {
+                        if(this.timer > this.firerate) {
+                            this.shoot();
+                            this.shootCount++;
+                            this.timer = 0;
+                        }
+                    }
+                }
+
+                break;
         }
+
        
     }
 

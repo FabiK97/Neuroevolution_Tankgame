@@ -154,13 +154,13 @@ class GameManager {
             let brainJSON = JSON.stringify(gameobj.tankbrain);
             let brain = NeuralNetwork.deserialize(brainJSON);
             var tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, brain.copy());
-            tank.inputConfig = gameobj.inputs;
-            tank.outputConfig = gameobj.outputs;
+            tank.inputConfig = gameobj.inputConfig;
+            tank.outputMode = gameobj.outputMode;
             tank.botMode = gameobj.botMode;
             if(gameobj.gamemode == gamemode.AI_VS_AI) {
                 let tank2 = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, brain.copy());
                 tank2.inputConfig = gameobj.inputConfig;
-                tank2.outputConfig = gameobj.outputConfig;
+                tank2.outputMode = gameobj.outputMode;
                 tank2.botMode= gameobj.botMode;
                 this.saveGame = new Game(gamemode, tank, tank2);
             } else {

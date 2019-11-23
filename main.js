@@ -232,6 +232,11 @@ function plotScore() {
 }
 
 function downloadBest() {
-  let brain = bestTank.brain;
-  saveJSON(brain, `tankbrain_${Math.round(bestTank.score)}.json`);
+  let json = {
+    tankbrain: bestTank.brain,
+    inputs: bestTank.inputConfig,
+    botMode: bestTank.botMode,
+    outputs: bestTank.outputConfig,
+  };
+  saveJSON(json, `tank_${Math.round(bestTank.score)}.json`);
 }

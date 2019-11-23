@@ -5,12 +5,14 @@ class GameManager {
         this.savedTanks = null;
         this.uimanager = uim;
         this.reviewGame = 0;
+        this.saveGame = null;
+        this.loadSavedGames();
     }
 
     setupTraining() {
         this.population = [];
         this.savedTanks = [];
-        this.currentgm = gamemode.AI_VS_AI;
+        this.currentgm = gamemode.BOT_VS_AI;
         for(let i = 0; i < POP_SIZE; i++) {
             this.population[i] = new Game(this.currentgm);
         }
@@ -50,7 +52,10 @@ class GameManager {
                 background(219, 187, 126);
                 this.game.render();
                 break;
-            case "History":
+            case "Savedgame":
+
+                this.updateSavegame(this.savedGames[uimanager.selectedSavedGame].gamemode);
+                this.renderSavegame();             
 
                 break;
         }
@@ -137,5 +142,51 @@ class GameManager {
             text("Highscore: " + highScore, 10, 30);
             this.reviewtimer += deltaTime/1000 ;
           }
+    }
+
+    loadSavedGames() {
+        this.savedGames = loadJSON("savedGames.json", function(obj) {console.log(obj)});
+    }
+
+    updateSavegame(gamemode) {
+        if(!this.saveGame || this.saveGame.gamemode != gamemode || this.saveGame.isOver || this.reviewtimer > MAX_GAME_LENGTH) {
+            let gameobj = this.savedGames[uimanager.selectedSavedGame];
+            let brainJSON = JSON.stringify(gameobj.tankbrain);
+            let brain = NeuralNetwork.deserialize(brainJSON);
+            var tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, brain.copy());
+            tank.inputConfig = gameobj.inputs;
+            tank.outputConfig = gameobj.outputs;
+            tank.botMode = gameobj.botMode;
+            if(gameobj.gamemode == gamemode.AI_VS_AI) {
+                let tank2 = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, brain.copy());
+                tank2.inputConfig = gameobj.inputConfig;
+                tank2.outputConfig = gameobj.outputConfig;
+                tank2.botMode= gameobj.botMode;
+                this.saveGame = new Game(gamemode, tank, tank2);
+            } else {
+                this.saveGame = new Game(gamemode, tank);
+            }
+        } else {
+            this.saveGame.update(deltaTime);
+        }
+    }
+
+    renderSavegame() {
+        if(this.saveGame) {
+            background(219, 187, 126);
+            this.saveGame.render();
+            let d = p5.Vector.sub(this.saveGame.tanks[0].enemy.pos, this.saveGame.tanks[0].pos)
+            let p = this.saveGame.tanks[0].pos;
+            let o = p5.Vector.fromAngle(this.saveGame.tanks[0].orientation);
+            o.mult(100);
+            stroke(255);
+            strokeWeight(2);
+            line(p.x,p.y,p.x+d.x,p.y+d.y);
+            line(p.x,p.y,p.x+o.x,p.y+o.y);
+            fill(0);
+            noStroke();
+            textSize(20);
+            this.reviewtimer += deltaTime/1000 ;
+        }
     }
 }

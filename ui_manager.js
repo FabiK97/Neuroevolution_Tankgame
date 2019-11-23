@@ -5,12 +5,13 @@ class UIManager {
 
     init() {
         this.selectedMode;
-        this.sidebarelements = [];
-        this.sidebarelements.push(document.getElementById("Multiplayer"));
-        this.sidebarelements.push(document.getElementById("Training"));
+        this.modeElements = [];
+        this.modeElements.push(document.getElementById("Multiplayer"));
+        this.modeElements.push(document.getElementById("Training"));
 
         //create History
-        this.historybox = document.getElementById("savedgames");
+        this.savedgamesBox = document.getElementById("savedgames");
+        this.selectedSavedGame;
         let loaded = [
             {name: "Stationary"},
             {name: "Moving"},
@@ -20,12 +21,11 @@ class UIManager {
             a.class("list-group-item list-group-item-action bg-light");
             a.html(game.name);
             a.id(game.name);
-            //a.mouseClicked(function() {uimanager.selectedMode = this.id(); console.log(this.id())});
-            a.parent(this.historybox);
-            this.sidebarelements.push(a.elt);
+            a.parent(this.savedgamesBox);
+            a.elt.addEventListener("click", function() {uimanager.selectedMode = "Savedgame"; uimanager.selectedSavedGame = this.id});
         }
 
-        for(let element of this.sidebarelements) {
+        for(let element of this.modeElements) {
             element.addEventListener("click", function() {uimanager.selectedMode = this.id});
         }
     

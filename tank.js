@@ -37,6 +37,23 @@ class Tank {
         this.inputs = [];
         this.score = 0;
         this.time = 0;
+
+        this.inputConfig = {
+            "position-x": true,
+            "position-y": true,
+            "velocity-x": true,
+            "velocity-y": true,
+            "direction": true,
+            "enemy-position-x": true,
+            "enemy-position-y": true,
+            "enemy-velocity-x": true,
+            "enemy-velocity-y": true,
+            "angle-to-enemy": true,
+            "projectile-position-x": true,
+            "projectile-position-y": true,
+        };
+        this.botMode = "moving-y";
+        this.outputConfig = {};
     }
 
     static get ARROW_KEYS() {
@@ -152,43 +169,50 @@ class Tank {
     }
 
     botControl(dt) {
-        
-        //moving up and down
-
-        /* if(this.pos.y < 100) {
-            this.botdir = false;
-            this.bottimer = 0;
-            this.pos.y = 101;
+        switch(this.botMode) {
+            case "stationary":
+                break;
+            case "moving-x":
+                break;
+            case "moving-y":
+                    if(this.pos.y < 100) {
+                        this.botdir = false;
+                        this.bottimer = 0;
+                        this.pos.y = 101;
+                    }
+            
+                    if(this.pos.y > game_height - 100) {
+                        this.botdir = true;
+                        this.bottimer = 0;
+                        this.pos.y = game_height - 101;
+            
+                    }
+            
+                    if(this.bottimer > 2000) {
+                       if(this.botdir) {
+                            this.vel = p5.Vector.fromAngle(this.orientation);
+                        } else {
+                            this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+                        } 
+                        this.vel.setMag(0.1);  
+                    } else {
+                        this.bottimer += dt;
+                        this.vel.mult(0);
+                    }
+                break;
+            case "wandering":
+                break;
+            case "stationary-shooting":
+                    let dist = p5.Vector.sub(this.enemy.pos, this.pos);
+                    let distangle = Math.atan2(dist.y, dist.x);
+                    this.turret.orientation = distangle;
+                    
+                    if(this.projectiles.length == 0) {
+                        this.shoot();
+                    }
+                break;
         }
-
-        if(this.pos.y > game_height - 100) {
-            this.botdir = true;
-            this.bottimer = 0;
-            this.pos.y = game_height - 101;
-
-        }
-
-        if(this.bottimer > 2000) {
-           if(this.botdir) {
-                this.vel = p5.Vector.fromAngle(this.orientation);
-            } else {
-                this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
-            } 
-            this.vel.setMag(0.1);  
-        } else {
-            this.bottimer += dt;
-            this.vel.mult(0);
-        } */
-
-        //shooting at AI
         
-        let dist = p5.Vector.sub(this.enemy.pos, this.pos);
-        let distangle = Math.atan2(dist.y, dist.x);
-        this.turret.orientation = distangle;
-        
-        if(this.projectiles.length == 0) {
-            this.shoot();
-        }
 
     }
 
@@ -222,63 +246,56 @@ class Tank {
 
     updateInputs() {
         this.inputs = [];
+
         //My Position
-        this.inputs.push(map(this.pos.x, 0, game_width, 0, 1));
-        this.inputs.push(map(this.pos.y, 0, game_height, 0, 1));
+        if(this.inputConfig["position-x"]) this.inputs.push(map(this.pos.x, 0, game_width, 0, 1));
+        if(this.inputConfig["position-y"]) this.inputs.push(map(this.pos.y, 0, game_height, 0, 1));
 
         //My Velocity
-        this.inputs.push(map(this.vel.x, 0, 0.2, 0, 1));
-        this.inputs.push(map(this.vel.y, 0, 0.2, 0, 1));
+        if(this.inputConfig["velocity-x"]) this.inputs.push(map(this.vel.x, 0, 0.2, 0, 1));
+        if(this.inputConfig["velocity-y"]) this.inputs.push(map(this.vel.y, 0, 0.2, 0, 1));
 
         //My Direction
-        this.inputs.push(map(this.orientation, 0, 2*Math.PI, 0, 1));
+        if(this.inputConfig["direction"]) this.inputs.push(map(this.orientation, 0, 2*Math.PI, 0, 1));
 
         //My Turretdirection
-       /*  let turdir = this.turret.orientation % (2*Math.PI);
-        this.inputs.push(map(turdir, 0, 2*Math.PI, -1, 1));
-         */
-        //Projectile Position
-        /* if(this.projectiles.length > 0) {
-            this.inputs.push(map(this.turret.pos.x, 0, game_width, 0, 1));
-            this.inputs.push(map(this.turret.pos.y, 0, game_height, 0, 1));
-        } else {
-            this.inputs.push(map(this.pos.x, 0, game_width, 0, 1));
-            this.inputs.push(map(this.pos.y, 0, game_height, 0, 1));
-        } */
+        let turdir = this.turret.orientation % (2*Math.PI);
+        if(this.inputConfig["turret-direction"]) this.inputs.push(map(turdir, 0, 2*Math.PI, -1, 1));
+         
 
         //Enemy Tank Position
-        this.inputs.push(map(this.enemy.pos.x, 0, game_width, 0, 1));
-        this.inputs.push(map(this.enemy.pos.y, 0, game_height, 0, 1));
+        if(this.inputConfig["enemy-position-x"]) this.inputs.push(map(this.enemy.pos.x, 0, game_width, 0, 1));
+        if(this.inputConfig["enemy-position-y"]) this.inputs.push(map(this.enemy.pos.y, 0, game_height, 0, 1));
 
         //Enemy Tank Velocity
-        this.inputs.push(map(this.enemy.vel.x, 0, game_width, 0, 1));
-        this.inputs.push(map(this.enemy.vel.y, 0, game_height, 0, 1));
+        if(this.inputConfig["enemy-velocity-x"]) this.inputs.push(map(this.enemy.vel.x, 0, game_width, 0, 1));
+        if(this.inputConfig["enemy-velocity-y"]) this.inputs.push(map(this.enemy.vel.y, 0, game_height, 0, 1));
 
         //angle to enemy
         let dist = p5.Vector.sub(this.enemy.pos, this.pos);
         let distangle = Math.atan2(dist.y, dist.x);
         this.angletoenemy = this.orientation - distangle;
-        this.inputs.push(map(this.angletoenemy, 0, 2*Math.PI, 0, 1));
+        if(this.inputConfig["angle-to-enemy"]) this.inputs.push(map(this.angletoenemy, 0, 2*Math.PI, 0, 1));
 
         //position of enemy projectiles
         if(this.enemy.projectiles[0]){
-            this.inputs.push(map(this.enemy.projectiles[0].pos.x, 0, game_width, 0, 1));
-            this.inputs.push(map(this.enemy.projectiles[0].pos.y, 0, game_height, 0, 1));
+            if(this.inputConfig["projectile-position-x"]) this.inputs.push(map(this.enemy.projectiles[0].pos.x, 0, game_width, 0, 1));
+            if(this.inputConfig["projectile-position-y"]) this.inputs.push(map(this.enemy.projectiles[0].pos.y, 0, game_height, 0, 1));
         } else {
-            this.inputs.push(1);
-            this.inputs.push(1);
+            if(this.inputConfig["projectile-position-x"]) this.inputs.push(1);
+            if(this.inputConfig["projectile-position-y"]) this.inputs.push(1);
         } 
 
         //distance to enemy projectiles
-        /* if(this.enemy.projectiles[0] && this.enemy.isPlayerTank){
+        if(this.enemy.projectiles[0] && this.enemy.isPlayerTank){
             let dist = p5.Vector.dist(this.enemy.projectiles[0].pos, this.pos);
             let max  = Math.sqrt(game_width*game_width + game_height*game_height);
             dist = map(dist, 0, max, 0, 1);
             console.log(dist);
-            this.inputs.push(dist);
+            if(this.inputConfig["projectile-distance"]) this.inputs.push(dist);
         } else {
-            this.inputs.push(1);
-        } */
+            if(this.inputConfig["projectile-distance"]) this.inputs.push(1);
+        }
         
 
 

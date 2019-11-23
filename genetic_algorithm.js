@@ -15,7 +15,7 @@ function nextGen() {
         child.mutate();
         child.color = mother.color;
 
-        if(current_gm == gamemode.AI_VS_AI) {
+        if(gamemanager.currentgm == gamemode.AI_VS_AI) {
             let mother = selectOne();
             let father = selectOne();
 
@@ -25,10 +25,10 @@ function nextGen() {
             child2.mutate();
             child2.color = mother.color;
 
-            gamemanager.population[i] = new Game(current_gm, child, child2);
+            gamemanager.population[i] = new Game(gamemanager.currentgm, child, child2);
 
         } else {
-            gamemanager.population[i] = new Game(current_gm, child);
+            gamemanager.population[i] = new Game(gamemanager.currentgm, child);
         }
         
     }
@@ -61,12 +61,12 @@ function calculateFitness() {
 
         //calculate best Tank
         if(gamemanager.savedTanks[i].score > highScore) {
-            if(current_gm == gamemode.AI_VS_AI) {
+            if(gamemanager.currentgm == gamemode.AI_VS_AI) {
                 secondTank = bestTank;
                 bestTank = gamemanager.savedTanks[i];
                 highScore = gamemanager.savedTanks[i].score;
             } else {
-                highScore = savedTanks[i].score;
+                highScore = gamemanager.savedTanks[i].score;
                 bestTank = gamemanager.savedTanks[i];
             }
         }

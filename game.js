@@ -47,7 +47,7 @@ class Game {
                 this.tanks[1].isBot = true;
                 break;
         }
-
+        console.log(this.tanks);
         this.tanks[1].blue = true;
 
 

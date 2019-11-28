@@ -1,6 +1,7 @@
 var bestTank;
 var secondTank;
 var current_gm;
+var currentscores;
 function nextGen() {
     calculateFitness();
 
@@ -40,23 +41,10 @@ function calculateFitness() {
     highScore = 0;
     let sum = 0;
     let deathcounter = 0;
-
+    avgHitaccuracy = 0;
     //sum up all the scores from all the tanks
     for (let i = 0; i < POP_SIZE; i++) {
-        //calculateScore(savedTanks[i]);
-
-        /* if(savedTanks[i].isWinner) {
-            let scoreMult = map(savedTanks[i].time, 1, 100, 50, 20);
-            savedTanks[i].score *= scoreMult;
-        } else {
-            if(savedTanks[i].died) {
-                //if he died, decrease his score
-                savedTanks[i].score /= 15;
-                deathcounter++;
-            } else {
-                savedTanks[i].score /= 5;
-            }
-        } */
+        avgHitaccuracy += gamemanager.savedTanks[i].hitaccuracy;
 
         //calculate best Tank
         if(gamemanager.savedTanks[i].score > highScore) {
@@ -72,9 +60,19 @@ function calculateFitness() {
 
         sum += gamemanager.savedTanks[i].score;
     }
+
+    /* let aiming = gamemanager.savedTanks.map((t) => {return t.aimingScore});
+    let moving = gamemanager.savedTanks.map((t) => {return t.notMovingCount});
+    let shooting = gamemanager.savedTanks.map((t) => {return t.hitCount});
+    console.log("Bestaim:", Math.max(...aiming));
+    console.log("Bestmove:", Math.max(...moving));
+    console.log("Bestshoot:", Math.max(...shooting)); */
+    currentscores = gamemanager.savedTanks.map((tank) => tank.score);
+    currentscores = currentscores.sort((a,b) => a < b);
+
     avgScore = sum/POP_SIZE;
+
     avgHitaccuracy = avgHitaccuracy/POP_SIZE;
-    console.log("avg ha: " + avgHitaccuracy);
 
     //normalize the score and save it as fitness
     for (let i = 0; i < POP_SIZE; i++) {
@@ -85,14 +83,29 @@ function calculateFitness() {
 function calculateScore(tank) {
 
     tank.hitaccuracy = tank.hitCount / tank.shootCount;
-    avgHitaccuracy += tank.hitaccuracy;
-    tank.score *= tank.hitCount;
-    
-    if(tank.died || tank.shootCount <= 4) {
-        tank.score /= 10;
-    }
 
-    //tank.score = Math.pow(tank.score, 2);
+    let movingScore = MAX_SCORE * 0.2 * (tank.notMovingCount / MAX_FRAMES);
+    let spinningScore = tank.notSpinningScore > MAX_FRAMES/2 ? MAX_SCORE * 0.2 : 0;
+    let aimingScore = MAX_SCORE * 0.4 * (tank.aimingScore / MAX_FRAMES);
+    let hitScore = MAX_SCORE * 0.2 * (tank.hitCount / (MAX_GAME_LENGTH/(tank.firerate/1000)));
+
+    tank.score += movingScore;
+    if(movingScore > 0.17*MAX_SCORE) {
+        tank.score += aimingScore;
+        tank.score += spinningScore;
+    }
+    tank.score += hitScore;
+
+    switch(FITNESS_SCALING) {
+        case "linear":
+            break;
+        case "squared":
+            tank.score = tank.score * tank.score;
+            break;
+        case "exponential":
+            tank.score = Math.pow(2, tank.score);
+            break;
+    }
 }
 
 /**

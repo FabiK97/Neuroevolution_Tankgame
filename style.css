@@ -27,3 +27,12 @@ html, body {
   font-size: 1em;
 }
   
+.infobox {
+  height: 40px;
+  padding: 8px 20px !important;
+}
+
+.infobox > strong {
+  float: right;
+  font-size: 1.1em;
+}

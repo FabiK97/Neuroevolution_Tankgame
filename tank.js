@@ -4,7 +4,7 @@ class Tank {
         this.vel = createVector();
         this.orientation = dir;
         this.rotation = 0;
-        this.MAXROTATION = 0.05;
+        this.MAXROTATION = 0.01;
         this.w = 60;
         this.h = 50;
         this.cr = 25;
@@ -14,13 +14,17 @@ class Tank {
         this.enemy = null;
         this.angletoenemy;
 
-        this.firerate = 1000;
+        this.firerate = 1000; //in ms
         this.timer = 0;
         this.bottimer = 0;
 
         this.isWinner = false;
         this.hitCount = 1;
         this.shootCount = 4;
+        this.notMovingCount = 0;
+        this.notSpinningScore = 0;
+        this.aimingScore= 0;
+
 
         this.died = false;
         this.isPlayerTank = true;
@@ -32,7 +36,13 @@ class Tank {
         if(brain) {
             this.brain = brain.copy();
         } else {
-            this.brain = new NeuralNetwork(12,20, 15,3);
+            if(!this.isBot) {
+                if(!HIDDEN_2) {
+                    this.brain = new NeuralNetwork(INPUTS, HIDDEN_1, OUTPUTS);
+                } else {
+                    this.brain = new NeuralNetwork(INPUTS, HIDDEN_1, HIDDEN_2, OUTPUTS);
+                }
+            } 
         }
         this.inputs = [];
         this.score = 0;
@@ -44,15 +54,15 @@ class Tank {
             "velocity-x": true,
             "velocity-y": true,
             "direction": true,
-            "enemy-position-x": true,
-            "enemy-position-y": true,
-            "enemy-velocity-x": true,
-            "enemy-velocity-y": true,
+            "enemy-position-x": false,
+            "enemy-position-y": false,
+            "enemy-velocity-x": false,
+            "enemy-velocity-y": false,
             "angle-to-enemy": true,
-            "projectile-position-x": true,
-            "projectile-position-y": true,
+            "projectile-position-x": false,
+            "projectile-position-y": false,
         };
-        this.botMode = "stationary";
+        this.botMode = BOT_MODE;
         this.outputMode = "mapped";
     }
 
@@ -64,7 +74,7 @@ class Tank {
     }
 
     mutate() {
-        this.brain.mutate(0.10);
+        this.brain.mutate(MUTATION_RATE);
     }
 
     setControls(controls) {
@@ -109,6 +119,20 @@ class Tank {
             }
         }
 
+        /* let dist = p5.Vector.sub(this.enemy.pos, this.pos);
+        let distangle = dist.heading();
+        this.angletoenemy = this.orientation - distangle;
+        if(this.angletoenemy > Math.PI) {
+            this.angletoenemy -= 2*Math.PI;
+        } else if(this.angletoenemy < -Math.PI) {
+            this.angletoenemy += 2*Math.PI;
+        } 
+        let mappedangle = map(this.angletoenemy, -Math.PI, Math.PI, 0, 1);
+
+        console.log("angleofenemy", distangle*180/Math.PI);
+        console.log("orientation", this.orientation*180/Math.PI);
+        console.log("angletoenemy", this.angletoenemy*180/Math.PI); */
+
         
     }
 
@@ -142,7 +166,7 @@ class Tank {
 
                 //shoot
                 if(outputs[2] > 0.7) {
-                    if(this.enemy.brain) {
+                    if(!this.enemy.isBot && !this.enemy.isPlayerTank) {
                         if(this.projectiles.length == 0 && this.timer > this.firerate) {
                             this.shoot();
                             this.shootCount++;
@@ -176,7 +200,7 @@ class Tank {
         
                 //shoot
                 if(outputs[2] > 0.7) {
-                    if(this.enemy.brain) {
+                    if(!this.enemy.isBot && !this.enemy.isPlayerTank) {
                         if(this.projectiles.length == 0 && this.timer > this.firerate) {
                             this.shoot();
                             this.shootCount++;
@@ -202,22 +226,45 @@ class Tank {
             case "stationary":
                 break;
             case "moving-x":
-                break;
-            case "moving-y":
-                    if(this.pos.y < 100) {
-                        this.botdir = false;
-                        this.bottimer = 0;
-                        this.pos.y = 101;
-                    }
-            
-                    if(this.pos.y > game_height - 100) {
+                    if(this.pos.x < 40) {
                         this.botdir = true;
                         this.bottimer = 0;
-                        this.pos.y = game_height - 101;
+                        this.pos.x = 45;
+                    }
+            
+                    if(this.pos.x > game_width - 40) {
+                        this.botdir = false;
+                        this.bottimer = 0;
+                        this.pos.x = game_width - 45;
+                    }
+            
+                    if(this.bottimer > 4000) {
+                       if(this.botdir) {
+                            this.vel = p5.Vector.fromAngle(this.orientation);
+                        } else {
+                            this.vel = p5.Vector.fromAngle(this.orientation - Math.PI);
+                        } 
+                        this.vel.setMag(0.2);  
+                    } else {
+                        this.bottimer += dt;
+                        this.vel.mult(0);
+                    }
+                break;
+            case "moving-y":
+                    if(this.pos.y < 40) {
+                        this.botdir = false;
+                        this.bottimer = 0;
+                        this.pos.y = 41;
+                    }
+            
+                    if(this.pos.y > game_height - 40) {
+                        this.botdir = true;
+                        this.bottimer = 0;
+                        this.pos.y = game_height - 41;
             
                     }
             
-                    if(this.bottimer > 2000) {
+                    if(this.bottimer > 4000) {
                        if(this.botdir) {
                             this.vel = p5.Vector.fromAngle(this.orientation);
                         } else {
@@ -263,6 +310,14 @@ class Tank {
         return false;
     }
 
+    checkAiming() {
+        if(this.angletoenemy > -0.8 && this.angletoenemy < 0.8) {
+            this.aimingScore += Math.pow(500,(1-Math.abs(this.angletoenemy)))/500;
+            //console.log("aim", Math.pow(1000,(1-Math.abs(this.angletoenemy)))/1000);
+        }
+
+    }
+
     checkTankCollision(tank) {
         if(tank !== this) {
            let d = tank.pos.dist(this.pos);
@@ -304,7 +359,12 @@ class Tank {
         let dist = p5.Vector.sub(this.enemy.pos, this.pos);
         let distangle = Math.atan2(dist.y, dist.x);
         this.angletoenemy = this.orientation - distangle;
-        if(this.inputConfig["angle-to-enemy"]) this.inputs.push(map(this.angletoenemy, 0, 2*Math.PI, 0, 1));
+        if(this.angletoenemy > Math.PI) {
+            this.angletoenemy -= 2*Math.PI;
+        } else if(this.angletoenemy < -Math.PI) {
+            this.angletoenemy += 2*Math.PI;
+        } 
+        if(this.inputConfig["angle-to-enemy"]) this.inputs.push(map(this.angletoenemy, -Math.PI, Math.PI, 0, 1));
 
         //position of enemy projectiles
         if(this.enemy.projectiles[0]){
@@ -330,8 +390,15 @@ class Tank {
 
     }
 
+    checkOrientation() {
+        this.orientation = this.orientation % (2*Math.PI);
+        if(this.orientation < 0) this.orientation = 2*Math.PI + this.orientation;
+    }
+
     update(dt) {
         this.vel.mult(0);
+
+        this.checkOrientation();
         
         if(this.isPlayerTank) {
             this.handleInputs(dt);
@@ -348,28 +415,33 @@ class Tank {
 
         this.pos.add(this.vel.mult(dt));
         this.orientation += this.rotation * dt;
-        this.orientation = this.orientation % (2*Math.PI);
-
-        this.rotation = 0;
+        
         
         this.turret.update(this.pos.x, this.pos.y, dt);
         this.projectiles.forEach(p => {
             p.update(dt);
         })
-
+        
         this.timer += dt;
-        if(!this.died) this.score++;
+        this.checkAiming();
+        if(this.vel.mag() <= 0.07) {
+            this.notMovingCount++;
+        }
+        if(Math.abs(this.rotation) <= 0.003) {
+            this.notSpinningScore++;
+        }
+        this.rotation = 0;
     }
 
     show() {
         push();
             noStroke();
-            /* if(!this.blue) {
-                fill(152, 76, 52);
+            if(!this.blue) {
+                fill(39, 72, 255/250*this.aimingScore);
             } else {
-                fill(39, 72, 97);
-            } */
-            fill(this.color.R,this.color.G,this.color.B);
+                fill(200, 10, 10);
+            }
+            //fill(this.color.R,this.color.G,this.color.B);
             translate(this.pos.x, this.pos.y);
             rotate(this.orientation);
             rectMode(CENTER);

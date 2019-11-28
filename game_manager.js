@@ -13,7 +13,12 @@ class GameManager {
         this.savedTanks = [];
         this.currentgm = gamemode.BOT_VS_AI;
         for(let i = 0; i < POP_SIZE; i++) {
-            this.population[i] = new Game(this.currentgm);
+            if(i == 0 && MODEL)  {
+                let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, MODEL);
+                this.population[i] = new Game(this.currentgm, tank);
+            } else {
+                this.population[i] = new Game(this.currentgm);
+            }
         }
         this.uimanager.setupDrawingNeuralNetwork(this.population[0].tanks[0].brain);
     }
@@ -26,7 +31,6 @@ class GameManager {
     update() {
         switch (this.uimanager.selectedMode) {
             case "Training":
-                console.log(this.uimanager.renderMode);
                 if(!this.population) this.setupTraining();
                 switch(this.uimanager.renderMode) {
                     case "training": 
@@ -74,20 +78,19 @@ class GameManager {
     }
 
     updateTraining() {
-        let dt = 40;
         for(let n = 0; n < this.uimanager.gameSpeedSlider.value(); n++) {
-              timer += (dt/1000);
+              timer += (FIXED_DT_IN_MS/1000);
         
               //update the games
               for(let i = 0; i < this.population.length; i++) {
-                this.population[i].update(dt);
+                this.population[i].update(FIXED_DT_IN_MS);
               }
         
               //check if a game is over, delete it from the current population and save its AI Tank in an array
+              
               for(let i = this.population.length - 1; i >= 0; i--) {
                 
                 if(this.population[i].isOver || timer > MAX_GAME_LENGTH) { 
-                  avgHitaccuracy = 0;
                   let game = this.population.splice(i, 1)[0];
                   calculateScore(game.tanks[0]);
 
@@ -166,7 +169,6 @@ class GameManager {
             var tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, brain.copy());
             tank.inputConfig = gameobj.inputConfig;
             tank.outputMode = gameobj.outputMode;
-            tank.botMode = gameobj.botMode;
             if(gameobj.gamemode == gamemode.AI_VS_AI) {
                 let tank2 = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, brain.copy());
                 tank2.inputConfig = gameobj.inputConfig;
@@ -175,6 +177,13 @@ class GameManager {
                 this.saveGame = new Game(gamemode, tank, tank2);
             } else {
                 this.saveGame = new Game(gamemode, tank);
+                this.saveGame.tanks[1].botMode = gameobj.botMode;
+                if(gameobj.botMode != "moving-x") {
+                    this.saveGame.tanks[1].pos = createVector(game_width/2 - 200, game_height/2);
+                    this.saveGame.tanks[1].orientation = -Math.PI/2;
+                    this.saveGame.tanks[1].turret.orientation = -Math.PI/2;
+
+                }
             }
         } else {
             this.saveGame.update(deltaTime);
@@ -198,5 +207,17 @@ class GameManager {
             textSize(20);
             this.reviewtimer += deltaTime/1000 ;
         }
+    }
+
+    setModel(gameobj) {
+        let brainJSON = JSON.stringify(gameobj.tankbrain);
+        let brain = NeuralNetwork.deserialize(brainJSON);
+        MODEL = brain;
+        INPUTS = brain.in;
+        HIDDEN_1 = brain.hn_1;
+        HIDDEN_2 = brain.hn_2;
+        OUTPUTS = brain.on;
+        this.setupTraining();
+        this.uimanager.selectedMode = "Training";
     }
 }

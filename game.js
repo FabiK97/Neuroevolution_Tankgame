@@ -8,6 +8,8 @@ class Game {
                 this.tanks.push(new Tank(game_width/2 + 200, game_height/2, -Math.PI/2));
                 this.tanks.push(new Tank(game_width/2 - 200, game_height/2, -Math.PI/2)); 
                 this.tanks[0].setControls(Tank.WASD);     
+                this.tanks[0].enemy = this.tanks[1];
+                this.tanks[1].enemy = this.tanks[0];
                 break;
             case 1: //PLAYER vs AI
                 if(tank1){
@@ -39,7 +41,11 @@ class Game {
                 } else {
                     this.tanks.push(new Tank(game_width/2 + 200, game_height/2, -Math.PI/2));
                 }
-                this.tanks.push(new Tank(game_width/2 - 200, game_height/2, -Math.PI/2));
+                if(BOT_MODE == "moving-x") {
+                    this.tanks.push(new Tank(game_width/2, game_height/4, 0));
+                } else {
+                    this.tanks.push(new Tank(game_width/2 - 200, game_height/2, -Math.PI/2));
+                }
                 this.tanks[0].isPlayerTank = false;
                 this.tanks[0].enemy = this.tanks[1];
                 this.tanks[1].isPlayerTank = false;
@@ -47,7 +53,6 @@ class Game {
                 this.tanks[1].isBot = true;
                 break;
         }
-        console.log(this.tanks);
         this.tanks[1].blue = true;
 
 

@@ -20,6 +20,8 @@ class UIManager {
     
         //Information
         this.infobox = document.getElementById("infobox");
+        this.popsizeElement = document.getElementById("pop");
+        this.mutationrateElement = document.getElementById("mr");
         this.generationElement = document.getElementById("gen");
         this.averageScoreElement = document.getElementById("as");
         this.hitaccuracyElement = document.getElementById("ha");
@@ -61,7 +63,12 @@ class UIManager {
         
         //Graph
         this.scorePlot = document.getElementById("scorePlot");
-        
+
+        //Train with Model
+        this.trainWithModelButton = document.getElementById("trainwithmodel");
+        this.trainWithModelButton.addEventListener("click", () => {
+          gamemanager.setModel(uimanager.savedGames[uimanager.selectedSavedGame]);
+        });
     }
 
     update() {
@@ -103,15 +110,18 @@ class UIManager {
                 break;
         
             case "Training":
+                    this.popsizeElement.innerHTML = POP_SIZE;
+                    this.mutationrateElement.innerHTML = Math.round(MUTATION_RATE*100) + "%";
                     this.generationElement.innerHTML = generationCount;
-                    this.averageScoreElement.innerHTML = avgScore;
-                    console.log(avgHitaccuracy);
-                    if(avgHitaccuracy) this.hitaccuracyElement.innerHTML = avgHitaccuracy;
+                    this.averageScoreElement.innerHTML = Math.round(avgScore*100)/100;;
+                    if(avgHitaccuracy) this.hitaccuracyElement.innerHTML =  Math.round(avgHitaccuracy*100) + "%";;
                 break;
             case "Savedgame":
+                    this.popsizeElement.innerHTML = this.savedGames[this.selectedSavedGame].populationsize;
+                    this.mutationrateElement.innerHTML = Math.round(this.savedGames[this.selectedSavedGame].mutationrate*100) + "%";
                     this.generationElement.innerHTML = this.savedGames[this.selectedSavedGame].generation;
-                    this.averageScoreElement.innerHTML = this.savedGames[this.selectedSavedGame].score;
-                    this.hitaccuracyElement.innerHTML = this.savedGames[this.selectedSavedGame].hitaccuracy;
+                    this.averageScoreElement.innerHTML = Math.round(this.savedGames[this.selectedSavedGame].score*100)/100;
+                    this.hitaccuracyElement.innerHTML = Math.round(this.savedGames[this.selectedSavedGame].hitaccuracy*100) + "%";
             break;
         }
 
@@ -216,6 +226,14 @@ function createSavedGamesUI() {
         a.html(game);
         a.id(game);
         a.parent(uimanager.savedgamesBox);
-        a.elt.addEventListener("click", function() {uimanager.selectedMode = "Savedgame"; uimanager.selectedSavedGame = this.id; uimanager.setupDrawingNeuralNetwork()});
+        a.elt.addEventListener("click", function() {
+          uimanager.selectedMode = "Savedgame"; 
+          uimanager.selectedSavedGame = this.id; 
+          if(gamemanager.saveGame) {
+            gamemanager.saveGame.isOver = true;
+            console.log(gamemanager.saveGame.isOver)
+          };
+          uimanager.setupDrawingNeuralNetwork()
+        });
     }
 }

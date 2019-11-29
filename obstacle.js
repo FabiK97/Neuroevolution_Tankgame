@@ -63,6 +63,19 @@ class Obstacle {
              }
     }
 
+    getAsWalls() {
+        let wall1 = { a: {x: this.x          , y: this.y},
+                      b: {x: this.x + this.w , y: this.y}};
+        let wall2 = { a: {x: this.x + this.w , y: this.y},
+                      b: {x: this.x + this.w , y: this.y + this.h}};
+        let wall3 = { a: {x: this.x + this.w , y: this.y + this.h},
+                      b: {x: this.x          , y: this.y + this.h}};
+        let wall4 = { a: {x: this.x          , y: this.y + this.h},
+                      b: {x: this.x          , y: this.y}};
+        
+        return [wall1,wall2,wall3,wall4];
+    }
+
     show() {
         noStroke();
         fill(75, 61, 48);

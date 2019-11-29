@@ -63,7 +63,7 @@ class Game {
         this.obstacles.push(new Obstacle(game_width - 10, 0, 10, game_height));
         this.obstacles.push(new Obstacle(0, game_height-10, game_width, game_height));
         this.obstacles.push(new Obstacle(0, 10, 10, game_height));
-        //this.obstacles.push(new Obstacle(game_width/2 - 25, 100, 50, game_height - 200));
+        this.obstacles.push(new Obstacle(game_width/2 - 25, 100, 50, game_height - 200));
 
         this.isOver = false;
         this.timer = 0;
@@ -77,13 +77,17 @@ class Game {
 
     update(dt) {
         for(let tank of this.tanks) {
-            tank.update(dt);
-
+            
+            let walls = []
             //check if tank collides with an obstacle (or wall)
             this.obstacles.forEach(obstacle => {
                 obstacle.checkCollision(tank);
+                walls.push(...obstacle.getAsWalls());
             });
-
+            //console.log(walls);
+            tank.look(walls);
+            tank.update(dt);
+            
             //check if two tanks collide
             for(let t of this.tanks) {
                 if(tank.checkTankCollision(t)) {

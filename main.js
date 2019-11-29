@@ -15,9 +15,10 @@ var MAX_SCORE = 10;
 var MAX_GAME_LENGTH = 20;
 var MAX_FRAMES = MAX_GAME_LENGTH*1000/FIXED_DT_IN_MS;
 
-var BOT_MODE = "moving-x";
-var INPUTS = 6;
-var HIDDEN_1 = 12;
+var ELITISM = true;
+var BOT_MODE = "stationary";
+var INPUTS = 15;
+var HIDDEN_1 = 20;
 var HIDDEN_2 = null;
 var OUTPUTS = 3;
 

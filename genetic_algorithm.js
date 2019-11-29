@@ -6,11 +6,18 @@ function nextGen() {
     calculateFitness();
 
     for (let i = 0; i < POP_SIZE; i++) {
+        if(i == 0 && ELITISM) {
+            let childBrain = bestTank.brain.copy();
+            var child = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, childBrain);
+            gamemanager.population[i] = new Game(gamemanager.currentgm, child);
+        } else {
+
+        
         let mother = selectOne();
         let father = selectOne();
 
-        let childBrain = NeuralNetwork.crossover(mother.brain, father.brain);
-        //let child = mother.copy();
+        //let childBrain = NeuralNetwork.crossover(mother.brain, father.brain);
+        let childBrain = mother.brain.copy();
 
         var child = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
         child.mutate();
@@ -31,7 +38,7 @@ function nextGen() {
         } else {
             gamemanager.population[i] = new Game(gamemanager.currentgm, child);
         }
-        
+      }  
     }
 
     gamemanager.savedTanks = [];
@@ -84,16 +91,16 @@ function calculateScore(tank) {
 
     tank.hitaccuracy = tank.hitCount / tank.shootCount;
 
-    let movingScore = MAX_SCORE * 0.2 * (tank.notMovingCount / MAX_FRAMES);
+    let movingScore = MAX_SCORE * 0.1 * (tank.notMovingCount / MAX_FRAMES);
     let spinningScore = tank.notSpinningScore > MAX_FRAMES/2 ? MAX_SCORE * 0.2 : 0;
-    let aimingScore = MAX_SCORE * 0.4 * (tank.aimingScore / MAX_FRAMES);
+    let aimingScore = MAX_SCORE * 0.5 * (tank.aimingScore / MAX_FRAMES);
     let hitScore = MAX_SCORE * 0.2 * (tank.hitCount / (MAX_GAME_LENGTH/(tank.firerate/1000)));
 
     tank.score += movingScore;
-    if(movingScore > 0.17*MAX_SCORE) {
+    //if(movingScore > 0.17*MAX_SCORE) {
         tank.score += aimingScore;
         tank.score += spinningScore;
-    }
+    //}
     tank.score += hitScore;
 
     switch(FITNESS_SCALING) {

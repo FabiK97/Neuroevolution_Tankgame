@@ -61,9 +61,18 @@ class Tank {
             "angle-to-enemy": true,
             "projectile-position-x": false,
             "projectile-position-y": false,
+            "vision": true,
         };
         this.botMode = BOT_MODE;
         this.outputMode = "mapped";
+
+        this.rays = [];
+        for(let a = 0; a < 360; a+=45) {
+            this.rays.push(new Ray(this.pos, radians(a)));
+        }
+        this.raytoenemy = new Ray(this.pos, radians(0));
+        this.seeEnemy = false;
+
     }
 
     static get ARROW_KEYS() {
@@ -312,7 +321,7 @@ class Tank {
 
     checkAiming() {
         if(this.angletoenemy > -0.8 && this.angletoenemy < 0.8) {
-            this.aimingScore += Math.pow(500,(1-Math.abs(this.angletoenemy)))/500;
+            if(this.seeEnemy > 0) this.aimingScore += Math.pow(500,(1-Math.abs(this.angletoenemy)))/500;
             //console.log("aim", Math.pow(1000,(1-Math.abs(this.angletoenemy)))/1000);
         }
 
@@ -386,13 +395,47 @@ class Tank {
             if(this.inputConfig["projectile-distance"]) this.inputs.push(1);
         }
         
+        //vision rays
+        if(this.inputConfig["vision"]) {
+           for(let ray of this.rays) {
+               let d = ray.record > 200 ? 200 : ray.record;
+               this.inputs.push(map(d, 0, 200, 1, 0));
+            } 
 
+            this.seeEnemy;
+            let dist = p5.Vector.dist(this.enemy.pos, this.pos);
+            let sight = this.raytoenemy.record;
+            this.seeEnemy = dist < sight ? 1 : 0;
+            this.inputs.push(this.seeEnemy);
+        }
+        
 
     }
 
     checkOrientation() {
         this.orientation = this.orientation % (2*Math.PI);
         if(this.orientation < 0) this.orientation = 2*Math.PI + this.orientation;
+    }
+
+    look(walls) {
+        let rays = [...this.rays];
+        rays.push(this.raytoenemy);
+        for(let [i,ray] of rays.entries()) {
+            let closest = null;
+            let record = i == rays.length-1 ? Infinity : 200;
+            for(let wall of walls) {
+                const pt = ray.checkWall(wall);
+                if(pt) { 
+                    const d = p5.Vector.dist(this.pos, pt);
+                    if(d < record) {
+                        record = d;
+                        closest = pt;
+                    }
+                }  
+            }
+            ray.closest = closest;
+            ray.record = closest ? record : Infinity;
+        } 
     }
 
     update(dt) {
@@ -431,6 +474,12 @@ class Tank {
             this.notSpinningScore++;
         }
         this.rotation = 0;
+
+        for(let ray of this.rays) {
+            ray.rotate(this.orientation);
+        }
+
+        this.raytoenemy.setDir(this.enemy.pos.x, this.enemy.pos.y);
     }
 
     show() {
@@ -452,5 +501,9 @@ class Tank {
         this.projectiles.forEach(p => {
             p.show();
         })
+        this.rays.forEach(r => {
+            r.show();
+        })
+        if(this.blue) this.raytoenemy.show();
     }
 }

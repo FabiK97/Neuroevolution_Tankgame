@@ -38,7 +38,8 @@ class GameManager {
                         if(this.uimanager.render) {
                             this.renderTraining();
                         } else {
-                            background(0);
+                            fill(0);
+                            rect(0,0,game_width, game_height);
                         }
                     break;
                     case "best":
@@ -56,8 +57,8 @@ class GameManager {
             case "Multiplayer":
                 if(!this.game) this.game = new Game(gamemode.MULTIPLAYER);
                 this.game.update(deltaTime);
-
-                background(219, 187, 126);
+                fill(219, 187, 126);
+                rect(0,0,game_width, game_height) //background(219, 187, 126); 
                 this.game.render();
                 break;
             case "Savedgame":
@@ -119,7 +120,8 @@ class GameManager {
     }  
     
     renderTraining() {
-        background(219, 187, 126); 
+        fill(219, 187, 126);
+        rect(0,0,game_width, game_height) //background(219, 187, 126);  
         for(let i = 0; i < this.population.length; i++) {
             this.population[i].render();
         } 
@@ -142,7 +144,8 @@ class GameManager {
 
     renderBestOfTraining() {
         if(this.reviewGame) {
-            background(219, 187, 126);
+            fill(219, 187, 126);
+            rect(0,0,game_width, game_height) //background(219, 187, 126); 
             this.reviewGame.render();
             let d = p5.Vector.sub(this.reviewGame.tanks[0].enemy.pos, this.reviewGame.tanks[0].pos)
             let p = this.reviewGame.tanks[0].pos;
@@ -192,7 +195,8 @@ class GameManager {
 
     renderSavegame() {
         if(this.saveGame) {
-            background(219, 187, 126);
+            fill(219, 187, 126);
+            rect(0,0,game_width, game_height) //background(219, 187, 126); 
             this.saveGame.render();
             let d = p5.Vector.sub(this.saveGame.tanks[0].enemy.pos, this.saveGame.tanks[0].pos)
             let p = this.saveGame.tanks[0].pos;

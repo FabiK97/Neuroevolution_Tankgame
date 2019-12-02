@@ -61,7 +61,7 @@ class Tank {
             "angle-to-enemy": true,
             "projectile-position-x": false,
             "projectile-position-y": false,
-            "vision": true,
+            "vision": false,
         };
         this.botMode = BOT_MODE;
         this.outputMode = "mapped";

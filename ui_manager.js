@@ -131,28 +131,54 @@ class UIManager {
 
     setupDrawingNeuralNetwork() {
         let nn;
+        let inputs;
+        let outputs;
+        this.inputsarray = [];
+        this.outputsarray = [];
         if(this.selectedMode == "Training" && gamemanager.population) {
           nn = gamemanager.population[0].tanks[0].brain;
+          inputs = gamemanager.population[0].tanks[0].inputConfig;
+          outputs = gamemanager.population[0].tanks[0].outputMode;
         } else if(this.selectedMode == "Savedgame") {
           nn = this.savedGames[this.selectedSavedGame].tankbrain;
+          inputs = this.savedGames[this.selectedSavedGame].inputConfig;
+          outputs = gamemanager.population[0].tanks[0].outputMode;
         }
 
         this.numberarray = [];
-          if(nn) {
+        if(inputs && outputs) {
+          for(let i of Object.keys(inputs)) {
+            if(inputs[i] == true) this.inputsarray.push(i);
+          }
+          switch (outputs) {
+            case "binary":
+                this.outputsarray = ["drive forwards", "drive backwards", "turn right", "turn left", "shoot"];
+              break;
+            case "mapped":
+                this.outputsarray = ["tank.velocity", "tank.rotation", "shoot"];
+              break;
+            case "mapped-turret":
+                this.outputsarray = ["tank.velocity", "tank.rotation", "tank.turret.rotation", "shoot"];
+            break;
+          }
+        }
+        console.log(this.inputsarray);
+        if(nn) {
           this.numberarray.push(nn.in);
           this.numberarray.push(nn.hn_1);
           if(nn.hn_2) this.numberarray.push(nn.hn_2);
           this.numberarray.push(nn.on);   
         }
+        this.drawNeuralNetwork();
     }
 
     drawNeuralNetwork() {
         var infoheight = 500;
-        var infowidth = 400;
+        var infowidth = 800;
         fill(255);
         stroke(0);
         strokeWeight(3);
-        rect(game_width,0,infowidth - 2, game_height-2);
+        rect(game_width + 50,0,infowidth, game_height);
         strokeWeight(1);
       
         let nodesarray = [this.numberarray.length];
@@ -174,7 +200,7 @@ class UIManager {
           nodesarray[i] = [];
           for(let j = 0; j < this.numberarray[i]; j++) {
             let layerheight = (this.numberarray[i]-1)*yoffset + this.numberarray[i]*d;
-            nodesarray[i].push({x: game_width + infowidth*0.1 + xoffset*i, y: infoheight*0.32 + (maxheight-layerheight)/2 + j*(d+yoffset)});
+            nodesarray[i].push({x: game_width + 50 + infowidth*0.35 + xoffset*i, y: infoheight*0.32 + (maxheight-layerheight)/2 + j*(d+yoffset)});
           }
         }
       
@@ -195,20 +221,39 @@ class UIManager {
         fill(0)
         textAlign(LEFT);
         textSize(22);
-        text('Neural Network: ',game_width + 10, 30);
+        let distleft = 60;
+        text('Neural Network: ',game_width + distleft, 30);
         textSize(18);
       
         for(let i = 0; i < this.numberarray.length; i++) {
           if(i==0) {
-            text('Inputs:       ' + this.numberarray[i], game_width + 10, 55 + i*25);
+            text('Inputs:       ' + this.numberarray[i], game_width + distleft, 55 + i*25);
           } else if(i==this.numberarray.length-1) {
-            text('Outputs:    ' + this.numberarray[i], game_width + 10, 55 +  i*25);
+            text('Outputs:    ' + this.numberarray[i], game_width + distleft, 55 +  i*25);
           } else {
-            text('Hidden-'+ (i) + ':  ' + this.numberarray[i], game_width + 10, 55 +  i*25);
+            text('Hidden-'+ (i) + ':  ' + this.numberarray[i], game_width + distleft, 55 +  i*25);
           }
           
         }
+
+        textAlign(RIGHT);
+        textSize(18);
+
+        for(let j = 0; j < nodesarray[0].length; j++) {
+          text(this.inputsarray[j],nodesarray[0][j].x - 20,nodesarray[0][j].y + d/2 + 5);
+        }
+        textAlign(LEFT);
+        for(let j = 0; j < nodesarray[nodesarray.length - 1].length; j++) {
+          text(this.outputsarray[j],nodesarray[nodesarray.length - 1][j].x + d + 20, nodesarray[nodesarray.length - 1][j].y + d/2 + 5);
+        }
+
+
+        
+        
         //ellipse(0,i*(d+offset), d, d);
+
+
+
     }
 
     loadSavedGames() {

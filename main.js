@@ -17,8 +17,9 @@ var MAX_FRAMES = MAX_GAME_LENGTH*1000/FIXED_DT_IN_MS;
 
 var ELITISM = true;
 var BOT_MODE = "stationary";
-var INPUTS = 15;
-var HIDDEN_1 = 20;
+var OBSTACLES = false;
+var INPUTS = 6;
+var HIDDEN_1 = 12;
 var HIDDEN_2 = null;
 var OUTPUTS = 3;
 
@@ -48,7 +49,7 @@ var gamemode = {
 
 function setup() { 
   //Init things here
-  createCanvas(game_width+400,game_height);
+  createCanvas(game_width+50+800,game_height);
   frameRate(fr);  
   generationCount = 1;
   avgScore = 0;
@@ -67,7 +68,10 @@ function draw() {
   uimanager.update();
   gamemanager.update();
   
-  if(uimanager.render) uimanager.drawNeuralNetwork();
+  //if(uimanager.render) uimanager.drawNeuralNetwork();
+  fill(255);
+  noStroke();
+  rect(game_width, 0, 50, game_height);
 }
 
 

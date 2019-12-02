@@ -93,6 +93,9 @@ function setupPlot() {
       datasets: [{
         data: scoreHistory,
         label: 'Score',
+        fill: false,
+        borderColor: '#000000',
+        pointRadius: 0,
       }],
     },
     options: {responsive: false,
@@ -103,7 +106,19 @@ function setupPlot() {
                         suggestedMax: maxy,    // minimum will be 0, unless there is a lower value.
                         // OR //
                         beginAtZero: false   // minimum value will be 0.
+                    },
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Average Score',
+                      fontSize: 20
                     }
+                }],
+                xAxes: [{
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Generations',
+                    fontSize: 20
+                  }
                 }]
             }
     },
@@ -129,6 +144,7 @@ function downloadBest() {
     hitaccuracy: bestTank.hitaccuracy,
     populationsize: POP_SIZE,
     mutationrate: MUTATION_RATE,
+    score_data: scoreHistory
   };
   saveJSON(json, `tank_${Math.round(bestTank.score)}.json`);
 }

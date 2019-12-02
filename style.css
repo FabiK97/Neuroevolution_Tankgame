@@ -36,3 +36,13 @@ html, body {
   float: right;
   font-size: 1.1em;
 }
+
+.nav-heading {
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.nav-element {
+  font-size: 1.2em;
+  padding-left: 30px;
+}

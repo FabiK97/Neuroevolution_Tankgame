@@ -15,8 +15,10 @@ class UIManager {
         
 
         for(let element of this.modeElements) {
-            element.addEventListener("click", function() {uimanager.selectedMode = this.id; uimanager.setupDrawingNeuralNetwork()});
+            element.addEventListener("click", function() {uimanager.selectedMode = this.id; uimanager.setupDrawingNeuralNetwork(); uimanager.setActive(this.id);});
         }
+
+        this.selectedMode = "Multiplayer";
     
         //Information
         this.infobox = document.getElementById("infobox");
@@ -129,7 +131,7 @@ class UIManager {
 
     setupDrawingNeuralNetwork() {
         let nn;
-        if(this.selectedMode == "Training") {
+        if(this.selectedMode == "Training" && gamemanager.population) {
           nn = gamemanager.population[0].tanks[0].brain;
         } else if(this.selectedMode == "Savedgame") {
           nn = this.savedGames[this.selectedSavedGame].tankbrain;
@@ -207,22 +209,32 @@ class UIManager {
           
         }
         //ellipse(0,i*(d+offset), d, d);
+    }
+
+    loadSavedGames() {
+        this.savedGames = loadJSON("savedGames.json", function(obj) {createSavedGamesUI()});
+    }
+
+    setActive(id) {
+      console.log(this.modeElements);
+      for(let element of this.modeElements) {
+        element.classList.remove("active");
+        if(element.id == id) {
+          element.classList.add("active");
+        }
       }
 
-      loadSavedGames() {
-        this.savedGames = loadJSON("savedGames.json", function(obj) {createSavedGamesUI()});
     }
 
 }
 
 function createSavedGamesUI() {
-    console.log("test");
     uimanager.savedgamesBox = document.getElementById("savedgames");
     uimanager.selectedSavedGame;
 
     for(let game of Object.keys(uimanager.savedGames)) {
         let a = createElement("a");
-        a.class("list-group-item list-group-item-action bg-light");
+        a.class("list-group-item list-group-item-action nav-element");
         a.html(game);
         a.id(game);
         a.parent(uimanager.savedgamesBox);
@@ -231,9 +243,11 @@ function createSavedGamesUI() {
           uimanager.selectedSavedGame = this.id; 
           if(gamemanager.saveGame) {
             gamemanager.saveGame.isOver = true;
-            console.log(gamemanager.saveGame.isOver)
           };
-          uimanager.setupDrawingNeuralNetwork()
+          uimanager.setupDrawingNeuralNetwork();
+          uimanager.setActive(this.id);
         });
+        a.elt.href = "#";
+        uimanager.modeElements.push(a.elt);
     }
 }

@@ -148,7 +148,7 @@ class Tank {
     aiControl(dt, outputs) {
 
         switch (this.outputMode) {
-            case "binary":
+            case "binary": {
                 
                 if(outputs[0] > 0.5) { //move forwards
         
@@ -172,7 +172,7 @@ class Tank {
                     this.rotation = -0.004;   
                     this.turret.rotate(-0.004);                        
                 }
-
+        
                 //shoot
                 if(outputs[2] > 0.7) {
                     if(!this.enemy.isBot && !this.enemy.isPlayerTank) {
@@ -189,11 +189,11 @@ class Tank {
                         }
                     }
                 }
-
-                break;
+            } break;
         
-            case "mapped":
-
+            case "mapped": {
+        
+            
                 let speed = map(outputs[0], 0, 1, -1, 1);
                 if(speed>0) {
                     this.vel = p5.Vector.fromAngle(this.orientation);
@@ -202,7 +202,7 @@ class Tank {
                     this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
                     this.vel.setMag(Math.abs(speed)*0.2);
                 }
-
+        
                 let angle = map(outputs[1], 0, 1, -this.MAXROTATION, this.MAXROTATION);
                 this.rotation = angle;
                 this.turret.rotate(angle);
@@ -223,8 +223,42 @@ class Tank {
                         }
                     }
                 }
-
-                break;
+               } break;
+        
+            case "mapped-turret": {
+        
+                var speed = map(outputs[0], 0, 1, -1, 1);
+                if(speed>0) {
+                    this.vel = p5.Vector.fromAngle(this.orientation);
+                    this.vel.setMag(Math.abs(speed)*0.2); 
+                } else {
+                    this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+                    this.vel.setMag(Math.abs(speed)*0.2);
+                }
+        
+                var angle = map(outputs[1], 0, 1, -this.MAXROTATION, this.MAXROTATION);
+                this.rotation = angle;
+        
+                angle = map(outputs[2], 0, 1, -this.MAXROTATION, this.MAXROTATION);
+                this.turret.rotate(angle);
+        
+                //shoot
+                if(outputs[3] > 0.7) {
+                    if(!this.enemy.isBot && !this.enemy.isPlayerTank) {
+                        if(this.projectiles.length == 0 && this.timer > this.firerate) {
+                            this.shoot();
+                            this.shootCount++;
+                            this.timer = 0;
+                        }
+                    } else {
+                        if(this.timer > this.firerate) {
+                            this.shoot();
+                            this.shootCount++;
+                            this.timer = 0;
+                        }
+                    }
+                }
+            } break;
         }
 
        
@@ -367,7 +401,7 @@ class Tank {
         //angle to enemy
         let dist = p5.Vector.sub(this.enemy.pos, this.pos);
         let distangle = Math.atan2(dist.y, dist.x);
-        this.angletoenemy = this.orientation - distangle;
+        this.angletoenemy = this.turret.orientation - distangle;
         if(this.angletoenemy > Math.PI) {
             this.angletoenemy -= 2*Math.PI;
         } else if(this.angletoenemy < -Math.PI) {

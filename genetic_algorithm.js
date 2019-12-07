@@ -93,13 +93,12 @@ function calculateScore(tank) {
 
     let movingScore = MAX_SCORE * 0.1 * (tank.notMovingCount / MAX_FRAMES);
     let spinningScore = tank.notSpinningScore > MAX_FRAMES/2 ? MAX_SCORE * 0.2 : 0;
-    let aimingScore = MAX_SCORE * 0.5 * (tank.aimingScore / MAX_FRAMES);
-    let hitScore = MAX_SCORE * 0.2 * (tank.hitCount / (MAX_GAME_LENGTH/(tank.firerate/1000)));
+    let aimingScore = MAX_SCORE * 0.6 * (tank.aimingScore / (MAX_FRAMES-100));
+    let hitScore = MAX_SCORE * 0.3 * (tank.hitCount / (MAX_GAME_LENGTH/(tank.firerate/1000) - 2));
 
     tank.score += movingScore;
-    //if(movingScore > 0.17*MAX_SCORE) {
-        tank.score += aimingScore;
-        tank.score += spinningScore;
+    tank.score += aimingScore;
+    //if(movingScore > 0.1*MAX_SCORE) {
     //}
     tank.score += hitScore;
 

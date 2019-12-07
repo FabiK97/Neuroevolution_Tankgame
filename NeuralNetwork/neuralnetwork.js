@@ -173,7 +173,6 @@ class NeuralNetwork {
     static deserialize(data) {
         if (typeof data == 'string') {
             data = JSON.parse(data, math.reviver);
-            console.log(data);
         }
 
         let nn;

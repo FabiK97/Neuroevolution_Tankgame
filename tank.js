@@ -48,21 +48,7 @@ class Tank {
         this.score = 0;
         this.time = 0;
 
-        this.inputConfig = {
-            "position-x": true,
-            "position-y": true,
-            "velocity-x": true,
-            "velocity-y": true,
-            "direction": true,
-            "enemy-position-x": false,
-            "enemy-position-y": false,
-            "enemy-velocity-x": false,
-            "enemy-velocity-y": false,
-            "angle-to-enemy": true,
-            "projectile-position-x": false,
-            "projectile-position-y": false,
-            "vision": false,
-        };
+        this.inputConfig = INPUT_CONFIG;
         this.botMode = BOT_MODE;
         this.outputMode = "mapped";
 
@@ -71,7 +57,7 @@ class Tank {
             this.rays.push(new Ray(this.pos, radians(a)));
         }
         this.raytoenemy = new Ray(this.pos, radians(0));
-        this.seeEnemy = false;
+        this.seeEnemy = 0;
 
     }
 
@@ -320,7 +306,16 @@ class Tank {
                     }
                 break;
             case "wandering":
-                break;
+                    let dir;
+                    if(this.pos.y < 40 || this.pos.y > game_height - 40 || this.pos.x < 40 || this.pos.x > game_width - 40) {
+                        dir = 0.1;
+                    } else {
+                        dir = random(-0.1, 0.1);
+                    }
+                    this.orientation += dir;
+                    this.vel = p5.Vector.fromAngle(this.orientation);
+                    this.vel.setMag(0.2);
+                    break;
             case "stationary-shooting":
                     let dist = p5.Vector.sub(this.enemy.pos, this.pos);
                     let distangle = Math.atan2(dist.y, dist.x);
@@ -355,7 +350,14 @@ class Tank {
 
     checkAiming() {
         if(this.angletoenemy > -0.8 && this.angletoenemy < 0.8) {
-            if(this.seeEnemy > 0) this.aimingScore += Math.pow(500,(1-Math.abs(this.angletoenemy)))/500;
+            if(this.inputConfig.vision) {
+                if(this.seeEnemy > 0) {
+                    this.aimingScore += Math.pow(500,(1-Math.abs(this.angletoenemy)))/500;
+                }
+                
+            }else {
+               this.aimingScore += Math.pow(500,(1-Math.abs(this.angletoenemy)))/500;
+            }
             //console.log("aim", Math.pow(1000,(1-Math.abs(this.angletoenemy)))/1000);
         }
 
@@ -385,6 +387,12 @@ class Tank {
         //My Direction
         if(this.inputConfig["direction"]) this.inputs.push(map(this.orientation, 0, 2*Math.PI, 0, 1));
 
+        //My Rotation
+        if(this.inputConfig["rotation"]) this.inputs.push(map(this.rotation, -this.MAXROTATION, +this.MAXROTATION, 0, 1));
+
+        //My Turretrotation
+        if(this.inputConfig["turret-rotation"]) this.inputs.push(map(this.turret.rotation, -this.MAXROTATION, +this.MAXROTATION, 0, 1));
+
         //My Turretdirection
         let turdir = this.turret.orientation % (2*Math.PI);
         if(this.inputConfig["turret-direction"]) this.inputs.push(map(turdir, 0, 2*Math.PI, -1, 1));
@@ -400,14 +408,35 @@ class Tank {
 
         //angle to enemy
         let dist = p5.Vector.sub(this.enemy.pos, this.pos);
-        let distangle = Math.atan2(dist.y, dist.x);
-        this.angletoenemy = this.turret.orientation - distangle;
+        this.distangle = Math.atan2(dist.y, dist.x);
+        this.angletoenemy = this.turret.orientation - this.distangle;
         if(this.angletoenemy > Math.PI) {
             this.angletoenemy -= 2*Math.PI;
         } else if(this.angletoenemy < -Math.PI) {
             this.angletoenemy += 2*Math.PI;
         } 
         if(this.inputConfig["angle-to-enemy"]) this.inputs.push(map(this.angletoenemy, -Math.PI, Math.PI, 0, 1));
+
+
+        //Enemy Tank Angle Velocity
+        let enemyvel = p5.Vector.mult(this.enemy.vel, 10);
+        let vel = p5.Vector.add(this.enemy.pos, enemyvel);
+        let veldist = p5.Vector.sub(vel, this.pos);
+        let veldistangle = Math.atan2(veldist.y, veldist.x);
+        this.enemyvelangle = veldistangle - this.distangle;
+        if(this.enemyvelangle > Math.PI) {
+            this.enemyvelangle -= 2*Math.PI;
+        } else if(this.enemyvelangle < -Math.PI) {
+            this.enemyvelangle += 2*Math.PI;
+        } 
+        if(this.inputConfig["enemy-velocity-angle"]) this.inputs.push(map(this.enemyvelangle, -Math.PI, Math.PI, 0, 1));
+
+
+
+        this.distancetoenemy = p5.Vector.dist(this.enemy.pos, this.pos);
+        let maxdistance = Math.sqrt(game_height*game_height + game_width*game_width);
+        if(this.inputConfig["distance-to-enemy"]) this.inputs.push(map(this.distancetoenemy, 0, maxdistance - 100, 0, 1));
+        
 
         //position of enemy projectiles
         if(this.enemy.projectiles[0]){
@@ -449,6 +478,8 @@ class Tank {
     checkOrientation() {
         this.orientation = this.orientation % (2*Math.PI);
         if(this.orientation < 0) this.orientation = 2*Math.PI + this.orientation;
+        this.turret.orientation = this.turret.orientation % (2*Math.PI);
+        if(this.turret.orientation < 0) this.turret.orientation = 2*Math.PI + this.turret.orientation;
     }
 
     look(walls) {
@@ -473,22 +504,26 @@ class Tank {
     }
 
     update(dt) {
-        this.vel.mult(0);
 
         this.checkOrientation();
-        
+
+        if(!this.isPlayerTank && !this.isBot) this.updateInputs();
+
+        this.rotation = 0;
+        this.turret.rotation = 0;
+        this.vel.mult(0);
+
         if(this.isPlayerTank) {
             this.handleInputs(dt);
         } else {
             if(this.isBot) {
                 this.botControl(dt);
             } else {
-                this.updateInputs();
                 let outputs = this.brain.predict(this.inputs);
                 this.aiControl(dt, outputs);
             }
         }
-   
+        
 
         this.pos.add(this.vel.mult(dt));
         this.orientation += this.rotation * dt;
@@ -507,13 +542,16 @@ class Tank {
         if(Math.abs(this.rotation) <= 0.003) {
             this.notSpinningScore++;
         }
-        this.rotation = 0;
 
+
+        if(this.inputConfig.vision && !this.isPlayerTank) {
         for(let ray of this.rays) {
             ray.rotate(this.orientation);
         }
 
         this.raytoenemy.setDir(this.enemy.pos.x, this.enemy.pos.y);
+        }
+        
     }
 
     show() {
@@ -535,9 +573,12 @@ class Tank {
         this.projectiles.forEach(p => {
             p.show();
         })
-        this.rays.forEach(r => {
-            r.show();
-        })
+        if(!this.isPlayerTank) {
+            this.rays.forEach(r => {
+                r.show();
+            })  
+        }
+        
         if(this.blue) this.raytoenemy.show();
     }
 }

@@ -14,7 +14,6 @@ class TankTurret {
         this.pos.y = y;
 
         this.orientation += this.rotation * dt;
-        this.rotation = 0;
     }
 
     show() {

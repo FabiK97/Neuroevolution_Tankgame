@@ -84,10 +84,10 @@ class Game {
             //check if tank collides with an obstacle (or wall)
             this.obstacles.forEach(obstacle => {
                 obstacle.checkCollision(tank);
-                if(OBSTACLES) walls.push(...obstacle.getAsWalls());
+                if(INPUT_CONFIG.vision) walls.push(...obstacle.getAsWalls());
             });
 
-            if(OBSTACLES) tank.look(walls);
+            if(INPUT_CONFIG.vision) tank.look(walls);
             tank.update(dt);
             
             //check if two tanks collide

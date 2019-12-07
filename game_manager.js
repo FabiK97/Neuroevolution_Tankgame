@@ -60,6 +60,7 @@ class GameManager {
                 fill(219, 187, 126);
                 rect(0,0,game_width, game_height) //background(219, 187, 126); 
                 this.game.render();
+
                 break;
             case "Savedgame":
                 switch(this.uimanager.savedgameRenderMode) {
@@ -150,11 +151,14 @@ class GameManager {
             let d = p5.Vector.sub(this.reviewGame.tanks[0].enemy.pos, this.reviewGame.tanks[0].pos)
             let p = this.reviewGame.tanks[0].pos;
             let o = p5.Vector.fromAngle(this.reviewGame.tanks[0].orientation);
+            let d1 = p5.Vector.fromAngle(this.reviewGame.tanks[0].distangle + this.reviewGame.tanks[0].enemyvelangle);
+            d1.mult(200);
             o.mult(100);
             stroke(255);
             strokeWeight(2);
             line(p.x,p.y,p.x+d.x,p.y+d.y);
             line(p.x,p.y,p.x+o.x,p.y+o.y);
+            line(p.x,p.y,p.x+d1.x,p.y+d1.y);
             fill(0);
             noStroke();
             textSize(20);
@@ -172,6 +176,7 @@ class GameManager {
             var tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, brain.copy());
             tank.inputConfig = gameobj.inputConfig;
             tank.outputMode = gameobj.outputMode;
+            OBSTACLES = gameobj.obstacles;
             if(gameobj.gamemode == gamemode.AI_VS_AI) {
                 let tank2 = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, brain.copy());
                 tank2.inputConfig = gameobj.inputConfig;
@@ -185,7 +190,10 @@ class GameManager {
                     this.saveGame.tanks[1].pos = createVector(game_width/2 - 200, game_height/2);
                     this.saveGame.tanks[1].orientation = -Math.PI/2;
                     this.saveGame.tanks[1].turret.orientation = -Math.PI/2;
-
+                } else {
+                    this.saveGame.tanks[1].pos = createVector(game_width/2, game_height/4);
+                    this.saveGame.tanks[1].orientation = 0;
+                    this.saveGame.tanks[1].turret.orientation = 0;
                 }
             }
         } else {

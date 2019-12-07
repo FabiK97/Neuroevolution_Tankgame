@@ -142,7 +142,7 @@ class UIManager {
         } else if(this.selectedMode == "Savedgame") {
           nn = this.savedGames[this.selectedSavedGame].tankbrain;
           inputs = this.savedGames[this.selectedSavedGame].inputConfig;
-          outputs = gamemanager.population[0].tanks[0].outputMode;
+          outputs = this.savedGames[this.selectedSavedGame].outputMode;
         }
 
         this.numberarray = [];
@@ -162,7 +162,6 @@ class UIManager {
             break;
           }
         }
-        console.log(this.inputsarray);
         if(nn) {
           this.numberarray.push(nn.in);
           this.numberarray.push(nn.hn_1);
@@ -200,7 +199,7 @@ class UIManager {
           nodesarray[i] = [];
           for(let j = 0; j < this.numberarray[i]; j++) {
             let layerheight = (this.numberarray[i]-1)*yoffset + this.numberarray[i]*d;
-            nodesarray[i].push({x: game_width + 50 + infowidth*0.35 + xoffset*i, y: infoheight*0.32 + (maxheight-layerheight)/2 + j*(d+yoffset)});
+            nodesarray[i].push({x: game_width + 25 + infowidth*0.35 + xoffset*i, y: infoheight*0.32 + (maxheight-layerheight)/2 + j*(d+yoffset)});
           }
         }
       

@@ -9,19 +9,39 @@ var MUTATION_RATE = 0.10;
 var FITNESS_SCALING = "squared";
 var fr = 60;
 var FIXED_DT_IN_MS = 40;
-var MAX_GAME_SPEED = 300;
+var MAX_GAME_SPEED = 200;
 
 var MAX_SCORE = 10;
 var MAX_GAME_LENGTH = 20;
 var MAX_FRAMES = MAX_GAME_LENGTH*1000/FIXED_DT_IN_MS;
 
 var ELITISM = true;
-var BOT_MODE = "stationary";
+var BOT_MODE = "wandering";
 var OBSTACLES = false;
-var INPUTS = 6;
-var HIDDEN_1 = 12;
+var INPUTS = 11;
+var HIDDEN_1 = 16;
 var HIDDEN_2 = null;
 var OUTPUTS = 3;
+
+var INPUT_CONFIG = {
+  "position-x": false,
+  "position-y": false,
+  "velocity-x": false,
+  "velocity-y": false,
+  "direction": false,
+  "turret-direction": false,
+  "turret-rotation": false,
+  "enemy-position-x": false,
+  "enemy-position-y": false,
+  "enemy-velocity-x": false,
+  "enemy-velocity-y": false,
+  "enemy-velocity-angle": false,
+  "angle-to-enemy": true,
+  "distance-to-enemy": true,
+  "projectile-position-x": false,
+  "projectile-position-y": false,
+  "vision": true,
+};
 
 var MODEL = null;
 
@@ -148,7 +168,8 @@ function downloadBest() {
     hitaccuracy: bestTank.hitaccuracy,
     populationsize: POP_SIZE,
     mutationrate: MUTATION_RATE,
-    score_data: scoreHistory
+    score_data: scoreHistory,
+    obstacles: OBSTACLES
   };
   saveJSON(json, `tank_${Math.round(bestTank.score)}.json`);
 }

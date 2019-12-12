@@ -50,12 +50,11 @@ class Tank {
 
         this.inputConfig = INPUT_CONFIG;
         this.botMode = BOT_MODE;
-        this.outputMode = "mapped";
+        this.outputMode = OUTPUT_MODE;
 
-        this.rays = [];
-        for(let a = 0; a < 360; a+=45) {
-            this.rays.push(new Ray(this.pos, radians(a)));
-        }
+        
+        this.setupRays();
+
         this.raytoenemy = new Ray(this.pos, radians(0));
         this.seeEnemy = 0;
 
@@ -68,6 +67,24 @@ class Tank {
         return 1;
     }
 
+    /**
+     * Create Rays around the tank
+     */
+    setupRays() {
+        this.rays = [];
+        if(this.inputConfig.vision) {
+            for(let a = 0; a < 360; a+=45) {
+                this.rays.push(new Ray(this.pos, radians(a)));
+            } 
+        } else if(this.inputConfig["projectile-vision"]) {
+            console.log("test");
+            for(let a = -90; a < 90; a+=15) {
+                this.rays.push(new Ray(this.pos, radians(a)));
+            }
+        }
+    }
+
+
     mutate() {
         this.brain.mutate(MUTATION_RATE);
     }
@@ -76,8 +93,12 @@ class Tank {
         this.controls = controls;
     }
 
+    /**
+     * Handle the Keyboard inputs according to the chosen controls
+     */
     handleInputs() {
         let SPACE_KEY = 32;
+        //Move Tank
         if((this.controls == 0 && keyIsDown(UP_ARROW)) || (this.controls == 1 && keyIsDown(87))) {
 
             this.vel = p5.Vector.fromAngle(this.orientation);
@@ -89,6 +110,7 @@ class Tank {
             this.vel.setMag(0.2);  
         }
         
+        //Turn Tank
         if((this.controls == 0 && keyIsDown(RIGHT_ARROW)) || (this.controls == 1 && keyIsDown(68))) {
             this.rotation += 0.004;
         }
@@ -113,24 +135,13 @@ class Tank {
                 this.timer = 0;
             }
         }
-
-        /* let dist = p5.Vector.sub(this.enemy.pos, this.pos);
-        let distangle = dist.heading();
-        this.angletoenemy = this.orientation - distangle;
-        if(this.angletoenemy > Math.PI) {
-            this.angletoenemy -= 2*Math.PI;
-        } else if(this.angletoenemy < -Math.PI) {
-            this.angletoenemy += 2*Math.PI;
-        } 
-        let mappedangle = map(this.angletoenemy, -Math.PI, Math.PI, 0, 1);
-
-        console.log("angleofenemy", distangle*180/Math.PI);
-        console.log("orientation", this.orientation*180/Math.PI);
-        console.log("angletoenemy", this.angletoenemy*180/Math.PI); */
-
         
     }
 
+
+    /**
+     * Control the tank with the outputs of the neural network
+     */
     aiControl(dt, outputs) {
 
         switch (this.outputMode) {
@@ -250,11 +261,14 @@ class Tank {
        
     }
 
+    /**
+     * Control the tank according to the chosen bot mode
+     */
     botControl(dt) {
         switch(this.botMode) {
-            case "stationary":
-                break;
-            case "moving-x":
+            case "stationary":{
+                break;}
+            case "moving-x": {
                     if(this.pos.x < 40) {
                         this.botdir = true;
                         this.bottimer = 0;
@@ -275,11 +289,12 @@ class Tank {
                         } 
                         this.vel.setMag(0.2);  
                     } else {
+                        console.log("test");
                         this.bottimer += dt;
                         this.vel.mult(0);
                     }
-                break;
-            case "moving-y":
+                break;}
+            case "moving-y": {
                     if(this.pos.y < 40) {
                         this.botdir = false;
                         this.bottimer = 0;
@@ -304,8 +319,8 @@ class Tank {
                         this.bottimer += dt;
                         this.vel.mult(0);
                     }
-                break;
-            case "wandering":
+                break;}
+            case "wandering": {
                     let dir;
                     if(this.pos.y < 40 || this.pos.y > game_height - 40 || this.pos.x < 40 || this.pos.x > game_width - 40) {
                         dir = 0.1;
@@ -315,16 +330,53 @@ class Tank {
                     this.orientation += dir;
                     this.vel = p5.Vector.fromAngle(this.orientation);
                     this.vel.setMag(0.2);
-                    break;
-            case "stationary-shooting":
+                    break;}
+            case "stationary-shooting": {
                     let dist = p5.Vector.sub(this.enemy.pos, this.pos);
                     let distangle = Math.atan2(dist.y, dist.x);
                     this.turret.orientation = distangle;
                     
-                    if(this.projectiles.length == 0) {
+                    if(this.timer > this.firerate) {
                         this.shoot();
+                        this.shootCount++;
+                        this.timer = 0;
                     }
-                break;
+                    this.timer++;
+                break;}
+            case "moving-y-shooting": {
+                if(this.pos.y < 40) {
+                    this.botdir = false;
+                    this.bottimer = 0;
+                    this.pos.y = 41;
+                }
+        
+                if(this.pos.y > game_height - 40) {
+                    this.botdir = true;
+                    this.bottimer = 0;
+                    this.pos.y = game_height - 41;
+        
+                }
+        
+                if(this.bottimer > 4000) {
+                    if(this.botdir) {
+                        this.vel = p5.Vector.fromAngle(this.orientation);
+                    } else {
+                        this.vel = p5.Vector.fromAngle(this.orientation + Math.PI);
+                    } 
+                    this.vel.setMag(0.1);  
+                } else {
+                    this.bottimer += dt;
+                    this.vel.mult(0);
+                }
+
+                let dist = p5.Vector.sub(this.enemy.pos, this.pos);
+                let distangle = Math.atan2(dist.y, dist.x);
+                this.turret.orientation = distangle;
+                if(this.projectiles.length == 0) {
+                    this.shoot();
+                }
+            break;
+            }
         }
         
 
@@ -348,6 +400,9 @@ class Tank {
         return false;
     }
 
+    /**
+     * Calculate the aimingscore of the tank
+     */
     checkAiming() {
         if(this.angletoenemy > -0.8 && this.angletoenemy < 0.8) {
             if(this.inputConfig.vision) {
@@ -358,7 +413,6 @@ class Tank {
             }else {
                this.aimingScore += Math.pow(500,(1-Math.abs(this.angletoenemy)))/500;
             }
-            //console.log("aim", Math.pow(1000,(1-Math.abs(this.angletoenemy)))/1000);
         }
 
     }
@@ -373,6 +427,9 @@ class Tank {
         return false;
     }
 
+    /**
+     * Generate the inputs according to the input configuration
+     */
     updateInputs() {
         this.inputs = [];
 
@@ -457,7 +514,7 @@ class Tank {
         } else {
             if(this.inputConfig["projectile-distance"]) this.inputs.push(1);
         }
-        
+
         //vision rays
         if(this.inputConfig["vision"]) {
            for(let ray of this.rays) {
@@ -471,6 +528,14 @@ class Tank {
             this.seeEnemy = dist < sight ? 1 : 0;
             this.inputs.push(this.seeEnemy);
         }
+
+        //projectile vision rays
+        if(this.inputConfig["projectile-vision"]) {
+            for(let ray of this.rays) {
+                let d = ray.record > 200 ? 200 : ray.record;
+                this.inputs.push(map(d, 0, 200, 1, 0));
+             } 
+         }
         
 
     }
@@ -482,6 +547,9 @@ class Tank {
         if(this.turret.orientation < 0) this.turret.orientation = 2*Math.PI + this.turret.orientation;
     }
 
+    /**
+     * check if rays hit any of the walls and calculate the distance to the closest one
+     */
     look(walls) {
         let rays = [...this.rays];
         rays.push(this.raytoenemy);
@@ -536,6 +604,7 @@ class Tank {
         
         this.timer += dt;
         this.checkAiming();
+        
         if(this.vel.mag() <= 0.07) {
             this.notMovingCount++;
         }
@@ -544,12 +613,11 @@ class Tank {
         }
 
 
-        if(this.inputConfig.vision && !this.isPlayerTank) {
+        if((this.inputConfig.vision || this.inputConfig["projectile-vision"])) {
         for(let ray of this.rays) {
             ray.rotate(this.orientation);
         }
-
-        this.raytoenemy.setDir(this.enemy.pos.x, this.enemy.pos.y);
+        if(!this.isPlayerTank) this.raytoenemy.setDir(this.enemy.pos.x, this.enemy.pos.y);
         }
         
     }
@@ -573,12 +641,15 @@ class Tank {
         this.projectiles.forEach(p => {
             p.show();
         })
-        if(!this.isPlayerTank) {
-            this.rays.forEach(r => {
-                r.show();
-            })  
+        if(this.inputConfig.vision || this.inputConfig["projectile-vision"]) {
+            if(!this.isBot) {
+                this.rays.forEach(r => {
+                    r.show();
+                })  
+            }
+            
+            //if(this.blue) this.raytoenemy.show();
+
         }
-        
-        if(this.blue) this.raytoenemy.show();
     }
 }

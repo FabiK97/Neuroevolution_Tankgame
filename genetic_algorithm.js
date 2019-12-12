@@ -6,21 +6,22 @@ function nextGen() {
     calculateFitness();
 
     for (let i = 0; i < POP_SIZE; i++) {
-        if(i == 0 && ELITISM) {
+        if(i == 0 && ELITISM) { //if elitism is on, use the nn of the best tank and push it into the new population
             let childBrain = bestTank.brain.copy();
             var child = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, childBrain);
             gamemanager.population[i] = new Game(gamemanager.currentgm, child);
         } else {
 
-        
+        //Do natural selection and choose parents
         let mother = selectOne();
         let father = selectOne();
 
+        //Do crossover or copy the brain of one parent
         //let childBrain = NeuralNetwork.crossover(mother.brain, father.brain);
         let childBrain = mother.brain.copy();
 
         var child = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, childBrain); //create a new Tank and pass him the neural network of the picked tank
-        child.mutate();
+        child.mutate(); //mutate the weights of the neural network of the child tank
         child.color = mother.color;
 
         if(gamemanager.currentgm == gamemode.AI_VS_AI) {
@@ -36,7 +37,7 @@ function nextGen() {
             gamemanager.population[i] = new Game(gamemanager.currentgm, child, child2);
 
         } else {
-            gamemanager.population[i] = new Game(gamemanager.currentgm, child);
+            gamemanager.population[i] = new Game(gamemanager.currentgm, child); // add child to new population
         }
       }  
     }
@@ -49,6 +50,7 @@ function calculateFitness() {
     let sum = 0;
     let deathcounter = 0;
     avgHitaccuracy = 0;
+
     //sum up all the scores from all the tanks
     for (let i = 0; i < POP_SIZE; i++) {
         avgHitaccuracy += gamemanager.savedTanks[i].hitaccuracy;
@@ -68,13 +70,7 @@ function calculateFitness() {
         sum += gamemanager.savedTanks[i].score;
     }
 
-    /* let aiming = gamemanager.savedTanks.map((t) => {return t.aimingScore});
-    let moving = gamemanager.savedTanks.map((t) => {return t.notMovingCount});
-    let shooting = gamemanager.savedTanks.map((t) => {return t.hitCount});
-    console.log("Bestaim:", Math.max(...aiming));
-    console.log("Bestmove:", Math.max(...moving));
-    console.log("Bestshoot:", Math.max(...shooting)); */
-    currentscores = gamemanager.savedTanks.map((tank) => tank.score);
+    currentscores = gamemanager.savedTanks.map((tank) => tank.score); //just for debugging
     currentscores = currentscores.sort((a,b) => a < b);
 
     avgScore = sum/POP_SIZE;
@@ -89,19 +85,21 @@ function calculateFitness() {
 
 function calculateScore(tank) {
 
-    tank.hitaccuracy = tank.hitCount / tank.shootCount;
+    //tank.hitaccuracy = tank.hitCount / tank.shootCount;
 
-    let movingScore = MAX_SCORE * 0.1 * (tank.notMovingCount / MAX_FRAMES);
+    //calculate the scores from different sources
+    let movingScore = MAX_SCORE * 0.2 * (tank.notMovingCount / MAX_FRAMES);
     let spinningScore = tank.notSpinningScore > MAX_FRAMES/2 ? MAX_SCORE * 0.2 : 0;
-    let aimingScore = MAX_SCORE * 0.6 * (tank.aimingScore / (MAX_FRAMES-100));
-    let hitScore = MAX_SCORE * 0.3 * (tank.hitCount / (MAX_GAME_LENGTH/(tank.firerate/1000) - 2));
+    let aimingScore = MAX_SCORE * 0.3 * (tank.aimingScore / (MAX_FRAMES));
+    let hitScore = MAX_SCORE * 0.7 * (tank.hitCount / (MAX_GAME_LENGTH/(tank.firerate/1000) - 2));
 
-    tank.score += movingScore;
-    tank.score += aimingScore;
-    //if(movingScore > 0.1*MAX_SCORE) {
-    //}
+    //Add the scores to the final score
+
+    //tank.score += movingScore;
+    tank.score += aimingScore; 
     tank.score += hitScore;
 
+    //scale the fitness
     switch(FITNESS_SCALING) {
         case "linear":
             break;

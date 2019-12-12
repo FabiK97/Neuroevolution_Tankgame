@@ -13,6 +13,7 @@ class Obstacle {
 
                     if(obj instanceof Tank) {
                             obj.pos.y = this.y + this.h + obj.cr;
+                            return true;
                     } else {
                         if(obj.bounced) {
                             return true;
@@ -26,6 +27,7 @@ class Obstacle {
 
                     if(obj instanceof Tank) {
                         obj.pos.y = this.y - obj.cr;
+                        return true;
                     } else {
                     if(obj.bounced) {
                         return true;
@@ -41,6 +43,7 @@ class Obstacle {
                     //vertical collision
                     if(obj instanceof Tank) {
                         obj.pos.x = this.x + this.w + obj.cr;
+                        return true;
                     } else {
                         if(obj.bounced) {
                             return true;
@@ -52,6 +55,7 @@ class Obstacle {
                     //vertical collision
                     if(obj instanceof Tank) {
                         obj.pos.x = this.x - obj.cr;
+                        return true;
                     } else {
                         if(obj.bounced) {
                             return true;
@@ -61,6 +65,7 @@ class Obstacle {
                     }
                  } 
              }
+             return false;
     }
 
     getAsWalls() {

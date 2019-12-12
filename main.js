@@ -4,9 +4,7 @@ var savedTanks = [];
 var loadedbrain;
 
 //Parameters
-var POP_SIZE = 100;
-var MUTATION_RATE = 0.10;
-var FITNESS_SCALING = "squared";
+
 var fr = 60;
 var FIXED_DT_IN_MS = 40;
 var MAX_GAME_SPEED = 200;
@@ -15,11 +13,15 @@ var MAX_SCORE = 10;
 var MAX_GAME_LENGTH = 20;
 var MAX_FRAMES = MAX_GAME_LENGTH*1000/FIXED_DT_IN_MS;
 
+var POP_SIZE = 100;
+var MUTATION_RATE = 0.10;
+var FITNESS_SCALING = "squared";
 var ELITISM = true;
-var BOT_MODE = "wandering";
+var BOT_MODE = "moving-y";
+var OUTPUT_MODE = "mapped";
 var OBSTACLES = false;
-var INPUTS = 11;
-var HIDDEN_1 = 16;
+var INPUTS = 2;
+var HIDDEN_1 = 10;
 var HIDDEN_2 = null;
 var OUTPUTS = 3;
 
@@ -40,7 +42,8 @@ var INPUT_CONFIG = {
   "distance-to-enemy": true,
   "projectile-position-x": false,
   "projectile-position-y": false,
-  "vision": true,
+  "vision": false,
+  "projectile-vision": false
 };
 
 var MODEL = null;
@@ -48,11 +51,10 @@ var MODEL = null;
 //Rendering
 var game_width = 800;
 var game_height = 600;
-var reviewtimer = 0;
+
+
 var uimanager;
-
-var timer = 0;
-
+var gamemanager;
 var scoreHistory = [];
 var avgScore;
 var avgHitaccuracy;
@@ -71,29 +73,31 @@ function setup() {
   //Init things here
   createCanvas(game_width+50+800,game_height);
   frameRate(fr);  
+  //set Generations to 1
   generationCount = 1;
   avgScore = 0;
   
-  canvas = document.getElementsByClassName("p5Canvas")[0];
+  canvas = document.getElementsByClassName("p5Canvas")[0]; 
   let main = document.getElementsByClassName("maincanvas")[0];
-  main.appendChild(canvas);
+  main.appendChild(canvas); //get p5 canvas and add it into the the ui
   
-  setupPlot();
+  setupPlot(); //configure the chart with chart.js
   uimanager = new UIManager();
   gamemanager = new GameManager(uimanager);
 }
-  
+
+/**
+ * This is function is looped by p5.js, so this is the game loop
+ */
 function draw() {
 
   uimanager.update();
   gamemanager.update();
   
-  //if(uimanager.render) uimanager.drawNeuralNetwork();
   fill(255);
   noStroke();
-  rect(game_width, 0, 50, game_height);
+  rect(game_width, 0, 50, game_height); //draw the parting line between game and neural network visualization
 }
-
 
 
 function setupPlot() {

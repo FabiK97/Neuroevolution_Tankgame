@@ -84,10 +84,18 @@ class Game {
             //check if tank collides with an obstacle (or wall)
             this.obstacles.forEach(obstacle => {
                 obstacle.checkCollision(tank);
-                if(INPUT_CONFIG.vision) walls.push(...obstacle.getAsWalls());
+                if(tank.inputConfig.vision || tank.inputConfig["projectile-vision"]) walls.push(...obstacle.getAsWalls());
             });
 
-            if(INPUT_CONFIG.vision) tank.look(walls);
+            for(let t of this.tanks) {
+                if(t != tank) {
+                    for(let p of t.projectiles) {
+                        walls.push(...p.getAsLines());
+                    }
+                }
+            }
+
+            if(tank.inputConfig.vision || tank.inputConfig["projectile-vision"]) tank.look(walls);
             tank.update(dt);
             
             //check if two tanks collide
@@ -114,7 +122,6 @@ class Game {
                     //check if tank is hit by a projectile
                     if(t.checkHit(tank.projectiles[i])) {
                         tank.projectiles.splice(i, 1);
-                        //t.died = true;
 
                         //if he didn´t hit himself, he increase his hits
                         if(t !== tank) {
@@ -123,7 +130,15 @@ class Game {
                             tank.hitCount++;
                             if(tank.isBot) {
                                 this.isOver = true;
+                            } else if(tank.isPlayerTank) {
+                                this.isOver = true;
+                                //console.log("YOU WIN!");
+                            } else {
+                               //this.isOver = true;
+                               //console.log("YOU LOST!"); 
                             }
+                            
+
                         } else {
                             if(!tank.isBot) this.isOver = true;
                         }

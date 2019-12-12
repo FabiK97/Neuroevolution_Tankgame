@@ -48,4 +48,17 @@ class Projectile {
             rect(0,0,this.h,this.w);
         pop();
     }
+
+    getAsLines() {
+        let line1 = { a: {x: this.pos.x          , y: this.pos.y},
+                      b: {x: this.pos.x + this.w , y: this.pos.y}};
+        let line2 = { a: {x: this.pos.x + this.w , y: this.pos.y},
+                      b: {x: this.pos.x + this.w , y: this.pos.y + this.h}};
+        let line3 = { a: {x: this.pos.x + this.w , y: this.pos.y + this.h},
+                      b: {x: this.pos.x          , y: this.pos.y + this.h}};
+        let line4 = { a: {x: this.pos.x          , y: this.pos.y + this.h},
+                      b: {x: this.pos.x          , y: this.pos.y}};
+
+        return [line1,line2,line3,line4];
+    }
 }

@@ -5,6 +5,10 @@ class UIManager {
         this.numberarray = [];
     }
 
+    /**
+     * Get all the elements from the HTML Document and save them in variables.
+     * Add Eventlistener to the elements
+     */
     init() {
         this.selectedMode;
         this.modeElements = [];
@@ -12,7 +16,6 @@ class UIManager {
         this.modeElements.push(document.getElementById("Training"));
 
         //create History
-        
 
         for(let element of this.modeElements) {
             element.addEventListener("click", function() {uimanager.selectedMode = this.id; uimanager.setupDrawingNeuralNetwork(); uimanager.setActive(this.id);});
@@ -75,6 +78,8 @@ class UIManager {
 
     update() {
         this.updateInfoBox();
+
+        //Display elements according to the current gamemode
         switch (this.selectedMode) {
             case "Multiplayer":
                     this.optionsBox.style.display = "none";
@@ -133,8 +138,10 @@ class UIManager {
         let nn;
         let inputs;
         let outputs;
+
         this.inputsarray = [];
         this.outputsarray = [];
+
         if(this.selectedMode == "Training" && gamemanager.population) {
           nn = gamemanager.population[0].tanks[0].brain;
           inputs = gamemanager.population[0].tanks[0].inputConfig;

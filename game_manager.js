@@ -6,13 +6,15 @@ class GameManager {
         this.uimanager = uim;
         this.reviewGame = 0;
         this.saveGame = null;
+        this.timer = 0;
+        this.reviewtimer = 0;
     }
 
     setupTraining() {
         this.population = [];
         this.savedTanks = [];
         this.currentgm = gamemode.BOT_VS_AI;
-        for(let i = 0; i < POP_SIZE; i++) {
+        for(let i = 0; i < POP_SIZE; i++) { //create new population of games
             if(i == 0 && MODEL)  {
                 let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, MODEL);
                 this.population[i] = new Game(this.currentgm, tank);
@@ -23,15 +25,10 @@ class GameManager {
         this.uimanager.setupDrawingNeuralNetwork(this.population[0].tanks[0].brain);
     }
 
-    run() {
-        this.update();
-        this.render();
-    }
-
     update() {
         switch (this.uimanager.selectedMode) {
             case "Training":
-                if(!this.population) this.setupTraining();
+                if(!this.population) this.setupTraining(); //if there is no population yet, setup a new training
                 switch(this.uimanager.renderMode) {
                     case "training": 
                         this.updateTraining();
@@ -55,11 +52,11 @@ class GameManager {
 
                 break;
             case "Multiplayer":
-                if(!this.game) this.game = new Game(gamemode.MULTIPLAYER);
+                if(!this.game || this.game.isOver) this.game = new Game(gamemode.MULTIPLAYER); //if there is no multiplayer game or the game is over, create a new one
                 this.game.update(deltaTime);
                 fill(219, 187, 126);
-                rect(0,0,game_width, game_height) //background(219, 187, 126); 
-                this.game.render();
+                rect(0,0,game_width, game_height) //Draw the background 
+                this.game.render(); //Render the game
 
                 break;
             case "Savedgame":
@@ -81,7 +78,7 @@ class GameManager {
 
     updateTraining() {
         for(let n = 0; n < this.uimanager.gameSpeedSlider.value(); n++) {
-              timer += (FIXED_DT_IN_MS/1000);
+              this.timer += (FIXED_DT_IN_MS/1000);
         
               //update the games
               for(let i = 0; i < this.population.length; i++) {
@@ -92,7 +89,7 @@ class GameManager {
               
               for(let i = this.population.length - 1; i >= 0; i--) {
                 
-                if(this.population[i].isOver || timer > MAX_GAME_LENGTH) { 
+                if(this.population[i].isOver || this.timer > MAX_GAME_LENGTH) { 
                   let game = this.population.splice(i, 1)[0];
                   calculateScore(game.tanks[0]);
 
@@ -115,23 +112,23 @@ class GameManager {
                 generationCount++;
                 scoreHistory.push(avgScore);
                 plotScore();
-                timer = 0;
+                this.timer = 0;
               }
         }
     }  
     
     renderTraining() {
         fill(219, 187, 126);
-        rect(0,0,game_width, game_height) //background(219, 187, 126);  
-        for(let i = 0; i < this.population.length; i++) {
+        rect(0,0,game_width, game_height) //Draw the background
+        for(let i = 0; i < this.population.length; i++) { //Render every game on top of the other
             this.population[i].render();
         } 
     }
 
     updateBestOfTraining(gamemode) {
-        if((!this.reviewGame || this.reviewGame.gamemode != gamemode || this.reviewGame.isOver || this.reviewtimer > MAX_GAME_LENGTH) && bestTank) {
-            this.uimanager.setupDrawingNeuralNetwork(bestTank.brain);
-            let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, bestTank.brain.copy());
+        if((!this.reviewGame || this.reviewGame.gamemode != gamemode || this.reviewGame.isOver || this.reviewtimer > MAX_GAME_LENGTH) && bestTank) { //If there is no reviewgame yet, or it is over, or the gamemode was switched and there is a best tank, create a new one
+            this.uimanager.setupDrawingNeuralNetwork(bestTank.brain); //Change the visualization of the nn to the current
+            let tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, bestTank.brain.copy()); //create a tank with the neural network of the current best
             if(gamemode == gamemode.AI_VS_AI) {
               let tank2 = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, secondTank.brain.copy());
               this.reviewGame = new Game(gamemode, tank, tank2);
@@ -146,37 +143,37 @@ class GameManager {
     renderBestOfTraining() {
         if(this.reviewGame) {
             fill(219, 187, 126);
-            rect(0,0,game_width, game_height) //background(219, 187, 126); 
+            rect(0,0,game_width, game_height) //draw the background
             this.reviewGame.render();
             let d = p5.Vector.sub(this.reviewGame.tanks[0].enemy.pos, this.reviewGame.tanks[0].pos)
             let p = this.reviewGame.tanks[0].pos;
             let o = p5.Vector.fromAngle(this.reviewGame.tanks[0].orientation);
-            let d1 = p5.Vector.fromAngle(this.reviewGame.tanks[0].distangle + this.reviewGame.tanks[0].enemyvelangle);
-            d1.mult(200);
             o.mult(100);
             stroke(255);
             strokeWeight(2);
-            line(p.x,p.y,p.x+d.x,p.y+d.y);
+            line(p.x,p.y,p.x+d.x,p.y+d.y); //draw some guidelines
             line(p.x,p.y,p.x+o.x,p.y+o.y);
-            line(p.x,p.y,p.x+d1.x,p.y+d1.y);
             fill(0);
             noStroke();
             textSize(20);
-            text("Highscore: " + highScore, 10, 30);
+            text("Highscore: " + highScore, 10, 30); //Print the highscore
             this.reviewtimer += deltaTime/1000 ;
           }
     }
 
     updateSavegame(gamemode) {
-        if(!this.saveGame || this.saveGame.gamemode != gamemode || this.saveGame.isOver || this.reviewtimer > MAX_GAME_LENGTH) {
-            let gameobj = uimanager.savedGames[uimanager.selectedSavedGame];
-            let brainJSON = JSON.stringify(gameobj.tankbrain);
-            let brain = NeuralNetwork.deserialize(brainJSON);
-            this.uimanager.setupDrawingNeuralNetwork(brain);
+        if(!this.saveGame || this.saveGame.gamemode != gamemode || this.saveGame.isOver || this.reviewtimer > MAX_GAME_LENGTH) { //If there is no reviewgame yet, or it is over, or the gamemode was switched, create a new one
+            let gameobj = uimanager.savedGames[uimanager.selectedSavedGame]; //get the configuration of the chosen savegame
+            let brainJSON = JSON.stringify(gameobj.tankbrain); //serialize the neural network again
+            let brain = NeuralNetwork.deserialize(brainJSON); //deserialize it with a math.js config
+            this.uimanager.setupDrawingNeuralNetwork(brain); //Change the visualization of the nn to the current
             var tank = new Tank(game_width/2 + 200, game_height/2, -Math.PI/2, brain.copy());
             tank.inputConfig = gameobj.inputConfig;
+            tank.setupRays(); 
+
             tank.outputMode = gameobj.outputMode;
             OBSTACLES = gameobj.obstacles;
+
             if(gameobj.gamemode == gamemode.AI_VS_AI) {
                 let tank2 = new Tank(game_width/2 - 200, game_height/2, -Math.PI/2, brain.copy());
                 tank2.inputConfig = gameobj.inputConfig;
@@ -196,6 +193,7 @@ class GameManager {
                     this.saveGame.tanks[1].turret.orientation = 0;
                 }
             }
+            this.reviewtimer = 0;
         } else {
             this.saveGame.update(deltaTime);
         }
@@ -212,8 +210,8 @@ class GameManager {
             o.mult(100);
             stroke(255);
             strokeWeight(2);
-            line(p.x,p.y,p.x+d.x,p.y+d.y);
-            line(p.x,p.y,p.x+o.x,p.y+o.y);
+            //line(p.x,p.y,p.x+d.x,p.y+d.y);
+            //line(p.x,p.y,p.x+o.x,p.y+o.y);
             fill(0);
             noStroke();
             textSize(20);
@@ -221,6 +219,7 @@ class GameManager {
         }
     }
 
+    //set the configruation of the chosen tank and start training with this model
     setModel(gameobj) {
         let brainJSON = JSON.stringify(gameobj.tankbrain);
         let brain = NeuralNetwork.deserialize(brainJSON);
